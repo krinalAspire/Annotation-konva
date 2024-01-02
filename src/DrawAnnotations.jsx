@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Image, Layer, Rect, Stage } from "react-konva";
 import Icon from "./invoice_7.jpg";
 import img7 from "./geometric-architecture-project-invoice_23-2149660465.avif";
@@ -14,21 +14,37 @@ import {
   DialogTitle,
   Grid,
   Popover,
+  Tooltip,
   Typography,
 } from "@mui/material";
 
 const DrawAnnotations = () => {
   const [annotations, setAnnotations] = useState([]);
-  const [intialData, setintialData] = useState([]);
   const [newAnnotation, setNewAnnotation] = useState([]);
   const [image] = useState(new window.Image());
   const [initialDataColor] = useState(Konva.Util.getRandomColor());
   const [newAnnotationColor] = useState(Konva.Util.getRandomColor());
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedBox, setSelectedBox] = useState(null);
+  const [label, setLabel] = useState('');
+
+  const parentRef = useRef();
+  const [originalImageSize, setOriginalImageSize] = useState({
+    width: "",
+    height: "",
+  });
+
+  useEffect(() => {
+    const parentElement = parentRef.current;
+    setOriginalImageSize({
+      width: parentElement.clientWidth,
+      // height: window.innerHeight * 2,
+      height: parentElement.clientHeight * 2,
+    });
+  }, []);
 
   // const originalImageSize = { width: 2481, height: 3508 };
-  const originalImageSize = { width: 1000, height: 1000 };
+  // const originalImageSize = { width: 1000, height: 1000 };
 
   const randomStr = randomstring.generate(6);
   // console.log("image", image.width);
@@ -39,7 +55,6 @@ const DrawAnnotations = () => {
   useEffect(() => {
     // Replace this with your actual initial data
     setAnnotations(initialAnnotations);
-    setintialData(initialAnnotations);
   }, []);
 
   const handleMouseEnter = (event) => {
@@ -72,12 +87,21 @@ const DrawAnnotations = () => {
         id: randomStr,
         color: newAnnotationColor,
       };
-      // console.log('annotationToadd', annotationToAdd.width);
+      // const annotationToAdd = {
+      //   x: sx / (originalImageSize.width / image.width),
+      //   y: sy / (originalImageSize.height / image.height),
+      //   width: (x - sx) / (originalImageSize.width / image.width),
+      //   height: (y - sy) / (originalImageSize.height / image.height),
+      //   id: randomStr,
+      //   color: newAnnotationColor,
+      // };
+      console.log("annotationToadd", annotationToAdd);
       setNewAnnotation([]);
       if (annotationToAdd.width !== 0 && annotationToAdd.height !== 0) {
         annotations.push(annotationToAdd);
         setAnnotations(annotations);
         setDialogOpen(true);
+        setSelectedBox(annotationToAdd);
       }
     }
   };
@@ -123,14 +147,33 @@ const DrawAnnotations = () => {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedBox(null);
-    // console.log('selectedbox', selectedBox);
+    console.log("selectedbox", selectedBox);
+
+    // const annotationToAdd = {
+    //   x: sx / (originalImageSize.width / image.width),
+    //   y: sy / (originalImageSize.height / image.height),
+    //   width: (x - sx) / (originalImageSize.width / image.width),
+    //   height: (y - sy) / (originalImageSize.height / image.height),
+    //   id: randomStr,
+    //   color: newAnnotationColor,
+    // };
 
     if (selectedBox !== null) {
       const updatedAnnotations = annotations.map((box) => {
-        console.log("box", box);
+        if (box.label === undefined && box.id === selectedBox.id) {
+          return {
+            id: box.id,
+            x: box.x / (originalImageSize.width / image.width),
+            y: box.y / (originalImageSize.height / image.height),
+            width: box.width / (originalImageSize.width / image.width),
+            height: box.height / (originalImageSize.height / image.height),
+            validated: true,
+            key: "new",
+            label: "newbox",
+          };
+        }
         return box.id === selectedBox.id ? { ...box, validated: true } : box;
       });
-      console.log("updatedannotationbox", updatedAnnotations);
       setAnnotations(updatedAnnotations);
     }
   };
@@ -178,11 +221,22 @@ const DrawAnnotations = () => {
     event.target.getStage().container().style.cursor = "crosshair";
   };
 
+  const handleMouseOver = (value) => {
+    console.log(`Mouse over event on box with id: ${value.id}`);
+    // You can add more logic based on the mouse over event
+    setLabel(value.id);
+  };  
+
+  console.log('label', label);
+
   return (
     <>
-      <Grid container>
+      <Grid container columns={{ xs: 4, sm: 6, md: 12 }}>
         <Grid item xs={8.5}>
-          <Box sx={{ width: "70vw", height: "100vh", overflow: "auto" }}>
+          <Box
+            ref={parentRef}
+            sx={{ width: "70vw", height: "100vh", overflow: "auto" }}
+          >
             <Stage
               onMouseDown={handleMouseDown}
               onMouseUp={handleMouseUp}
@@ -266,7 +320,7 @@ const DrawAnnotations = () => {
                             (originalImageSize.height / image.height)
                           : value.height
                       }
-                      fill="transparent"
+                      fill={label === value.id ? "rgba(255, 255, 0, 0.3)" : null}
                       stroke={value.color || initialDataColor}
                       onClick={() => handleBoxClick(value)}
                       strokeWidth={2} // Adjust the width of the border
@@ -279,6 +333,7 @@ const DrawAnnotations = () => {
                           ? 5 // Set the radius of the corners for rectangles with positive width and height
                           : 0 // No corner radius for rectangles with negative width or height
                       }
+                      onMouseOver={() => handleMouseOver(value)}
                     />
                   );
                 })}

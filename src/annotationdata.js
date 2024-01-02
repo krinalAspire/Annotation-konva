@@ -19,6 +19,16 @@ export const initialAnnotations = [
     value: "08/28/2016",
     section: "InvoiceDetails",
   },
+  // {
+  //   id: "TGpQYQ",
+  //   x: 1190.88,
+  //   y: 189.432,
+  //   width: 292.75800000000004,
+  //   height: 112.256,
+  //   validated: true,
+  //   key: "new",
+  //   label: "newbox"
+  // },
   {
     id: "fybWx9",
     width: 251,
