@@ -22,11 +22,16 @@ const DrawAnnotations = () => {
   const [annotations, setAnnotations] = useState([]);
   const [newAnnotation, setNewAnnotation] = useState([]);
   const [image] = useState(new window.Image());
-  const [initialDataColor] = useState(Konva.Util.getRandomColor());
-  const [newAnnotationColor] = useState(Konva.Util.getRandomColor());
+  // const [initialDataColor] = useState(Konva.Util.getRandomColor());
+  const [initialDataColor] = useState("rgba(255,165,0,1)");
+  // const [newAnnotationColor] = useState(Konva.Util.getRandomColor());
+  const [newAnnotationColor] = useState("blue");
+  const [validateColor] = useState("rgba(34,139,34, 1)");
+  const [hoverRectFillcolor, sethoverRectFillcolor] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedBox, setSelectedBox] = useState(null);
-  const [label, setLabel] = useState('');
+  const [hoverId, sethoverId] = useState("");
+  const [isDragging, setisDragging] = useState(false);
 
   const parentRef = useRef();
   const [originalImageSize, setOriginalImageSize] = useState({
@@ -62,19 +67,19 @@ const DrawAnnotations = () => {
   };
 
   const handleMouseDown = (event) => {
-    console.log("mouse down called");
-    if (newAnnotation.length === 0) {
+    // console.log("mouse down called");
+    if (hoverId === "" && newAnnotation.length === 0) {
       const { x, y } = event.target.getStage().getPointerPosition();
       setNewAnnotation([{ x, y, width: 0, height: 0, id: randomStr }]);
     }
   };
 
-  console.log("annotations", annotations);
-  console.log("newAnnotation", newAnnotation);
+  // console.log("annotations", annotations);
+  // console.log("newAnnotation", newAnnotation);
 
   const handleMouseUp = (event) => {
     if (newAnnotation.length === 1) {
-      console.log("mouseup called");
+      // console.log("mouseup called");
       const sx = newAnnotation[0].x;
       const sy = newAnnotation[0].y;
       const { x, y } = event.target.getStage().getPointerPosition();
@@ -95,7 +100,7 @@ const DrawAnnotations = () => {
       //   id: randomStr,
       //   color: newAnnotationColor,
       // };
-      console.log("annotationToadd", annotationToAdd);
+      // console.log("annotationToadd", annotationToAdd);
       setNewAnnotation([]);
       if (annotationToAdd.width !== 0 && annotationToAdd.height !== 0) {
         annotations.push(annotationToAdd);
@@ -145,9 +150,20 @@ const DrawAnnotations = () => {
   };
 
   const handleCloseDialog = () => {
+    if (!selectedBox.label) {
+      const updatedAnnotations = annotations.filter(
+        (box) => box.id !== selectedBox.id
+      );
+      setAnnotations(updatedAnnotations);
+    }
     setDialogOpen(false);
     setSelectedBox(null);
-    console.log("selectedbox", selectedBox);
+  };
+
+  const handleConfirm = () => {
+    setDialogOpen(false);
+    setSelectedBox(null);
+    // console.log("selectedbox", selectedBox);
 
     // const annotationToAdd = {
     //   x: sx / (originalImageSize.width / image.width),
@@ -170,6 +186,7 @@ const DrawAnnotations = () => {
             validated: true,
             key: "new",
             label: "newbox",
+            // color: newAnnotationColor,
           };
         }
         return box.id === selectedBox.id ? { ...box, validated: true } : box;
@@ -208,26 +225,62 @@ const DrawAnnotations = () => {
   //   setSelectedBox(null);
   // };
 
-  console.log("selectedbox", selectedBox);
-  console.log("dialogbox", isDialogOpen);
+  // console.log("selectedbox", selectedBox);
+  // console.log("dialogbox", isDialogOpen);
 
   const annotationsToDraw = [...annotations, ...newAnnotation];
 
-  const onMouseEnter = (event) => {
+  const rectMouseEnter = (event) => {
     event.target.getStage().container().style.cursor = "move";
+    // setisDragging(true);
   };
 
-  const onMouseLeave = (event) => {
+  const rectMouseLeave = (event) => {
     event.target.getStage().container().style.cursor = "crosshair";
+    sethoverId("");
+    setNewAnnotation([]);
+    // setDialogOpen(false);
+    // setSelectedBox(null);
+    // setisDragging(false);
   };
 
   const handleMouseOver = (value) => {
-    console.log(`Mouse over event on box with id: ${value.id}`);
+    // console.log(`Mouse over event on box with id: ${value.id}`);
     // You can add more logic based on the mouse over event
-    setLabel(value.id);
-  };  
+    setSelectedBox(value);
+    sethoverId(value.id);
+    if (value.validated) {
+      sethoverRectFillcolor("rgba(34,139,34, 0.3)");
+    } else {
+      sethoverRectFillcolor("rgba(255,165,0,0.3)");
+    }
+  };
 
-  console.log('label', label);
+  // console.log("label", hoverId);
+
+  const handleDragStart = (event) => {
+    // setClickMode(false);
+    setisDragging(true);
+    setDialogOpen(true);
+  };
+
+  const handleDragMove = (event) => {
+    if (isDragging) {
+      setDialogOpen(false);
+      // setSelectedBox(null);
+      const { x, y } = event.target.attrs;
+      const updatedAnnotations = annotations.map((box) =>
+        box.id === hoverId ? { ...box, x: x / (originalImageSize.width / image.width), y: y / (originalImageSize.height / image.height) } : box
+      );
+      setAnnotations(updatedAnnotations);
+    }
+  };
+
+  const handleDragEnd = (event) => {
+    setisDragging(false);
+    setSelectedBox(null);
+    setDialogOpen(false);
+  };
 
   return (
     <>
@@ -235,7 +288,7 @@ const DrawAnnotations = () => {
         <Grid item xs={8.5}>
           <Box
             ref={parentRef}
-            sx={{ width: "70vw", height: "100vh", overflow: "auto" }}
+            sx={{ width: "auto", height: "100vh", overflow: "auto" }}
           >
             <Stage
               onMouseDown={handleMouseDown}
@@ -320,10 +373,14 @@ const DrawAnnotations = () => {
                             (originalImageSize.height / image.height)
                           : value.height
                       }
-                      fill={label === value.id ? "rgba(255, 255, 0, 0.3)" : null}
-                      stroke={value.color || initialDataColor}
+                      fill={hoverId === value.id ? hoverRectFillcolor : null}
+                      stroke={
+                        value.validated
+                          ? validateColor
+                          : value.color || initialDataColor
+                      }
                       onClick={() => handleBoxClick(value)}
-                      strokeWidth={2} // Adjust the width of the border
+                      strokeWidth={1} // Adjust the width of the border
                       dash={value.label === undefined ? [5, 5] : null} // Set a dashed border pattern
                       // cornerRadius={5} // Set the radius of the corners
                       cornerRadius={
@@ -334,6 +391,12 @@ const DrawAnnotations = () => {
                           : 0 // No corner radius for rectangles with negative width or height
                       }
                       onMouseOver={() => handleMouseOver(value)}
+                      onMouseEnter={rectMouseEnter}
+                      onMouseLeave={rectMouseLeave}
+                      draggable
+                      onDragStart={handleDragStart}
+                      onDragMove={handleDragMove}
+                      onDragEnd={handleDragEnd}
                     />
                   );
                 })}
@@ -342,7 +405,19 @@ const DrawAnnotations = () => {
           </Box>
         </Grid>
         <Grid item xs={3.5}>
-          <Typography>hello there</Typography>
+          {/* <Typography>hello there</Typography> */}
+          <Box sx={{ width: "auto", height: "100vh", overflow: "auto" }}>
+            {annotationsToDraw.map((annotation) => (
+              <div
+                key={annotation.id}
+                onMouseOver={() => handleMouseOver(annotation)}
+              >
+                <Typography variant="subtitle1">{annotation.label}</Typography>
+                <Typography variant="body1">{annotation.value}</Typography>
+                <hr />
+              </div>
+            ))}
+          </Box>
         </Grid>
 
         {/* <Dialog open={isDialogOpen} onClose={handleCloseDialog}> */}
@@ -369,7 +444,7 @@ const DrawAnnotations = () => {
             ) : null}
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>confirm</Button>
+            <Button onClick={handleConfirm}>confirm</Button>
             <Button onClick={handleRemove}>remove</Button>
           </DialogActions>
           {/* </Dialog> */}
