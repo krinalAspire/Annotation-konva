@@ -26,12 +26,16 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import trash from "./x-circle.svg";
+import check from "./check-circle.svg";
 
 const DrawAnnotations = () => {
   const [annotations, setAnnotations] = useState([]);
   const [newAnnotation, setNewAnnotation] = useState([]);
   const [image] = useState(new window.Image());
+  const [trashimage] = useState(new window.Image());
+  const [checkimage] = useState(new window.Image());
   // const [initialDataColor] = useState(Konva.Util.getRandomColor());
   const [initialDataColor] = useState("rgba(255,165,0,1)");
   // const [newAnnotationColor] = useState(Konva.Util.getRandomColor());
@@ -40,6 +44,7 @@ const DrawAnnotations = () => {
   const [hoverRectFillcolor, sethoverRectFillcolor] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedBox, setSelectedBox] = useState(null);
+  const [hoverBox, sethoverBox] = useState(null);
   const [transformBox, setTransformBox] = useState(null);
   const [hoverId, sethoverId] = useState("");
   const [tootipId, setTootipId] = useState("");
@@ -47,6 +52,7 @@ const DrawAnnotations = () => {
   const shapeRef = useRef([]);
   const transformRef = useRef([]);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
   const stageRef = useRef(null);
 
   // useEffect(() => {
@@ -68,6 +74,7 @@ const DrawAnnotations = () => {
         // console.log("this called");
         if (transformer && transformer.nodes) {
           const node = shapeRef.current[i];
+          console.log("shapeRef", shapeRef.current[i].getAbsolutePosition());
           transformer.nodes([node]);
           transformer.getLayer().batchDraw();
         }
@@ -97,6 +104,8 @@ const DrawAnnotations = () => {
   // console.log("image", image.width);
 
   image.src = Icon;
+  trashimage.src = trash;
+  checkimage.src = check;
   // image.src = "http://192.168.2.213:9014/images/1703675661012-invoice_7.jpg";
   //   image.src = "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg";
 
@@ -116,9 +125,25 @@ const DrawAnnotations = () => {
       const { x, y } = event.target.getStage().getPointerPosition();
       setNewAnnotation([{ x, y, width: 0, height: 0, id: randomStr }]);
     }
+    // setSelectedBox(null);
+    if (selectedBox && !selectedBox.label) {
+      const updatedAnnotations = annotations.filter(
+        (box) => box.id !== selectedBox.id
+      );
+      setTransformBox(null);
+      setTootipId("");
+      setAnnotations(updatedAnnotations);
+      setDialogOpen(false);
+      setSelectedBox(null);
+      sethoverBox(null);
+    } else if (hoverId === "" && selectedBox) {
+      setDialogOpen(false);
+      setSelectedBox(null);
+      sethoverBox(null);
+    }
   };
 
-  console.log("annotations", annotations);
+  // console.log("annotations", annotations);
   // console.log("newAnnotation", newAnnotation);
 
   const handleMouseUp = (event) => {
@@ -136,21 +161,21 @@ const DrawAnnotations = () => {
         id: randomStr,
         color: newAnnotationColor,
       };
-      // const annotationToAdd = {
-      //   x: sx / (originalImageSize.width / image.width),
-      //   y: sy / (originalImageSize.height / image.height),
-      //   width: (x - sx) / (originalImageSize.width / image.width),
-      //   height: (y - sy) / (originalImageSize.height / image.height),
-      //   id: randomStr,
-      //   color: newAnnotationColor,
-      // };
+      const imageSizeannotationToAdd = {
+        x: sx / (originalImageSize.width / image.width),
+        y: sy / (originalImageSize.height / image.height),
+        width: (x - sx) / (originalImageSize.width / image.width),
+        height: (y - sy) / (originalImageSize.height / image.height),
+        id: randomStr,
+        color: newAnnotationColor,
+      };
       // console.log("annotationToadd", annotationToAdd);
       setNewAnnotation([]);
       if (annotationToAdd.width !== 0 && annotationToAdd.height !== 0) {
         annotations.push(annotationToAdd);
         setAnnotations(annotations);
         setDialogOpen(true);
-        setSelectedBox(annotationToAdd);
+        setSelectedBox(imageSizeannotationToAdd);
         setTransformBox(annotationToAdd);
       }
     }
@@ -206,6 +231,7 @@ const DrawAnnotations = () => {
     }
     setDialogOpen(false);
     setSelectedBox(null);
+    sethoverBox(null);
     // if(tootipId !== '' && selectedBox && transformBox && selectedBox.id === transformBox.id && selectedBox.x === transformBox.x){
     //   setTransformBox(null);
     // } else {
@@ -214,13 +240,14 @@ const DrawAnnotations = () => {
     // setTransformBox(null);
   };
 
-  // console.log('selectedbpx', selectedBox);
-  // console.log('transformBox', transformBox);
-  // console.log('tootipId', tootipId);
+  // console.log("selectedbpx", selectedBox);
+  // console.log("transformBox", transformBox);
+  // console.log("tootipId", tootipId);
 
   const handleConfirm = () => {
     setDialogOpen(false);
     setSelectedBox(null);
+    sethoverBox(null);
     setTransformBox(null);
     setTootipId("");
     // console.log("selectedbox", selectedBox);
@@ -237,6 +264,7 @@ const DrawAnnotations = () => {
     if (selectedBox !== null) {
       const updatedAnnotations = annotations.map((box) => {
         if (box.label === undefined && box.id === selectedBox.id) {
+          // console.log("this called");
           return {
             id: box.id,
             x: box.x / (originalImageSize.width / image.width),
@@ -251,6 +279,7 @@ const DrawAnnotations = () => {
         }
         return box.id === selectedBox.id ? { ...box, validated: true } : box;
       });
+      // console.log("updateeeeeeeeeeeeeeeeeeeeeeeee", updatedAnnotations);
       setAnnotations(updatedAnnotations);
     }
   };
@@ -264,6 +293,7 @@ const DrawAnnotations = () => {
       setNewAnnotation([]);
       setDialogOpen(false);
       setSelectedBox(null);
+      sethoverBox(null);
       setTransformBox(null);
     } else {
       annotations.pop();
@@ -271,6 +301,7 @@ const DrawAnnotations = () => {
       setAnnotations([...annotations]);
       setDialogOpen(false);
       setSelectedBox(null);
+      sethoverBox(null);
       setTransformBox(null);
     }
     setTootipId("");
@@ -318,19 +349,23 @@ const DrawAnnotations = () => {
     // setDialogOpen(false);
     // setSelectedBox(null);
     // setisDragging(false);
+    sethoverBox(null);
   };
 
   const handleMouseOver = (value) => {
     // console.log(`Mouse over event on box with id: ${value.id}`);
     // You can add more logic based on the mouse over event
-    setSelectedBox(value);
-    sethoverId(value.id);
+    // setSelectedBox(value);
+    sethoverBox(value);
+    if (value.label) {
+      sethoverId(value.id);
+    }
     setTootipId(value.id);
 
     const stage = stageRef.current;
-    console.log("stage", stage.current);
+    // console.log("stage", stage.current);
     const pointerPos = stage.getPointerPosition() || { x: 0, y: 0 };
-    console.log("pointerPos", pointerPos);
+    // console.log("pointerPos", pointerPos);
     const tooltipX = pointerPos.x;
     const tooltipY = pointerPos.y + 5;
 
@@ -343,7 +378,7 @@ const DrawAnnotations = () => {
     }
   };
 
-  console.log("tooltipPosition", tooltipPosition);
+  // console.log("tooltipPosition", tooltipPosition);
   // console.log("label", hoverId);
 
   const handleDragStart = (event) => {
@@ -373,14 +408,20 @@ const DrawAnnotations = () => {
   const handleDragEnd = (event) => {
     setisDragging(false);
     setSelectedBox(null);
+    sethoverBox(null);
     setTransformBox(null);
     setDialogOpen(false);
   };
 
   // console.log("transformerref", transformRef);
 
+  const handletransformcancle = () => {
+    setTransformBox(null);
+    setTootipId("");
+  };
+
   return (
-    <>
+    <Box>
       <Grid container columns={{ xs: 4, sm: 6, md: 12 }}>
         <Grid item xs={8.5}>
           <Box
@@ -500,17 +541,29 @@ const DrawAnnotations = () => {
                                 (node.height() * scaleY) /
                                 (originalImageSize.height / image.height),
                             };
-                            console.log("newAttrs", newAttrs);
+                            // console.log("newAttrs", newAttrs);
 
                             // Call your onChange function directly
                             const rects = annotations.slice();
                             rects[i] = newAttrs;
                             setAnnotations(rects);
                             // setTransformBox(null);
-                            if (value.id === transformBox.id) {
-                              setSelectedBox(value);
-                              setDialogOpen(true);
-                            }
+                            // if (value.id === transformBox.id) {
+                            //   setSelectedBox(value);
+                            //   setDialogOpen(true);
+                            // }
+
+                            // const transformerNode = transformRef.current[i];
+                            // const rectNode = shapeRef.current[i];
+                            // if (transformerNode && rectNode) {
+                            //   const rectPos = rectNode.position();
+                            //   const iconPos =
+                            //     transformerNode.getAbsolutePosition();
+                            //   setIconPosition({
+                            //     x: iconPos.x - rectPos.x,
+                            //     y: iconPos.y - rectPos.y,
+                            //   });
+                            // }
                           }
                         }}
                         x={
@@ -562,106 +615,134 @@ const DrawAnnotations = () => {
                         onDragEnd={handleDragEnd}
                       />
                       {/* {selectedBox && <Transformer ref={transformRef} />} */}
-                      {transformBox && transformBox.id === value.id && (
-                        <Transformer
-                          key={`transformer-${value.id}`} // Ensure a unique key for each Transformer
-                          // ref={transformRef.current[i]}
-                          ref={(node) => (transformRef.current[i] = node)}
-                          // ref={transformRef}
-                          // flipEnabled={false}
-                          rotateEnabled={false}
-                          boundBoxFunc={(oldBox, newBox) => {
-                            // limit resize
-                            if (
-                              Math.abs(newBox.width) < 5 ||
-                              Math.abs(newBox.height) < 5
-                            ) {
-                              return oldBox;
-                            }
-                            return newBox;
-                          }}
-                        />
-                      )}
-                    </>
-                  );
-                })}
-              </Layer>
-              <Layer>
-                {annotationsToDraw.map((value) => {
-                  return (
-                    <React.Fragment key={value.id}>
-                      {hoverId === value.id && (
-                        <Rect
-                          x={tooltipPosition?.x} // Adjust the position as needed
-                          y={tooltipPosition?.y}
-                          width={100} // Set the width of the tooltip-like rect
-                          height={30} // Set the height of the tooltip-like rect
-                          fill="rgba(255,165,0,0.8)" // Set the background color of the tooltip-like rect
-                          cornerRadius={5} // Set the radius of the corners
-                        />
-                      )}
-                      {hoverId === value.id && (
-                        <Text
-                          x={tooltipPosition?.x + 10} // Adjust the position as needed
-                          y={tooltipPosition?.y + 10} // Adjust the position as needed
-                          text={`${value?.label}`}
-                          fill="black" // Set the text color
-                        />
-                        // <p x={tooltipPosition?.x + 10} // Adjust the position as needed
-                        //   y={tooltipPosition?.y + 10} // Adjust the position as needed
-                        //   text={`${value?.label}`}
-                        //   fill="black" // Set the text color
-                        //   />
-                        // <Tooltip
-                        //   x={tooltipPosition?.x + 10} // Adjust the position as needed
-                        //   y={tooltipPosition?.y + 10} // Adjust the position as needed
-                        //   text={`${value?.label}`}
-                        //   fill="black" // Set the text color
-                        // />
-                        // <Typography
-                        //   variant="body1"
-                        //   x={tooltipPosition?.x + 10}
-                        //   y={tooltipPosition?.y + 10}
-                        //   fill="black"
-                        // />
-                      )}
-                      {/* {hoverId === value.id && (
-                        <Typography
-                          variant="body1"
-                          x={tooltipPosition?.x + 10}
-                          y={tooltipPosition?.y + 10}
-                          fill="black"
-                        >
-                          {`${value?.label}`}
-                        </Typography>
-                      )} */}
-                      {/* {hoverId === value.id && (
-                        <Group>
-                          <Rect
-                            x={tooltipPosition?.x + 10}
-                            y={tooltipPosition?.y + 10}
-                            width={200} // Adjust width as needed
-                            height={40} // Adjust height as needed
-                            fill="rgba(0, 0, 0, 0)" // Transparent fill
+                      {transformBox &&
+                        transformBox.label &&
+                        transformBox.id === value.id && (
+                          <Transformer
+                            key={`transformer-${value.id}`} // Ensure a unique key for each Transformer
+                            // ref={transformRef.current[i]}
+                            ref={(node) => (transformRef.current[i] = node)}
+                            // ref={transformRef}
+                            // flipEnabled={false}
+                            rotateEnabled={false}
+                            boundBoxFunc={(oldBox, newBox) => {
+                              // limit resize
+                              if (
+                                Math.abs(newBox.width) < 5 ||
+                                Math.abs(newBox.height) < 5
+                              ) {
+                                return oldBox;
+                              }
+                              return newBox;
+                            }}
+                            onClick={() => setSelectedBox(value)}
+                            onMouseDown={onmousedown}
                           />
-                          <foreignObject
-                            x={tooltipPosition?.x + 10}
-                            y={tooltipPosition?.y + 10}
-                            width={200}
-                            height={30}
-                          >
-                            <div>
-                              <Typography
-                                variant="body1"
-                                style={{ color: "black" }}
-                              >
-                                {value?.label}
-                              </Typography>
-                            </div>
-                          </foreignObject>
-                        </Group>
+                        )}
+
+                      {transformBox &&
+                        transformBox.label &&
+                        transformBox.x === value.x &&
+                        transformBox.id === value.id && (
+                          <Image
+                            image={trashimage}
+                            x={
+                              shapeRef.current[i] &&
+                              shapeRef.current[i].getAbsolutePosition().x +
+                                value.width *
+                                  (originalImageSize.width / image.width) +
+                                5 // Adjust the offset as needed
+                            }
+                            y={
+                              shapeRef.current[i] &&
+                              shapeRef.current[i].getAbsolutePosition().y +
+                                value.height *
+                                  (originalImageSize.height / image.height) -
+                                20 // Adjust the offset as needed
+                            }
+                            width={20} // Adjust width as needed
+                            height={20} // Adjust height as needed
+                            onClick={handletransformcancle}
+                            ommouseo
+                          />
+                        )}
+
+                      {transformBox &&
+                        transformBox.x !== value.x &&
+                        transformBox.id === value.id && (
+                          <Image
+                            image={checkimage}
+                            x={
+                              shapeRef.current[i] &&
+                              shapeRef.current[i].getAbsolutePosition().x +
+                                value.width *
+                                  (originalImageSize.width / image.width) +
+                                5 // Adjust the offset as needed
+                            }
+                            y={
+                              shapeRef.current[i] &&
+                              shapeRef.current[i].getAbsolutePosition().y +
+                                value.height *
+                                  (originalImageSize.height / image.height) -
+                                20 // Adjust the offset as needed
+                            }
+                            width={20} // Adjust width as needed
+                            height={20} // Adjust height as needed
+                            onClick={handletransformcancle}
+                          />
+                        )}
+
+                      {/* {hoverId === value.id && (
+                        <>
+                          <Rect
+                            x={
+                              value.x * (originalImageSize.width / image.width)
+                            }
+                            y={
+                              shapeRef.current[i] &&
+                              shapeRef.current[i].getAbsolutePosition().y +
+                                value.height *
+                                  (originalImageSize.height / image.height) -
+                                5 // Adjust the offset as needed
+                            }
+                            width={
+                              // value.width *
+                              // (originalImageSize.width / image.width)
+                              100
+                            } // Adjust width as needed
+                            height={
+                              // value.height *
+                              // (originalImageSize.width / image.width)
+                              15
+                            } // Adjust height as needed
+                            fill="rgba(255,165,0,0.8)" // Set the background color of the tooltip-like rect
+                            cornerRadius={5} // Set the radius of the corners
+                          />
+                          <Text
+                            x={
+                              value.x * (originalImageSize.width / image.width)
+                            }
+                            y={
+                              shapeRef.current[i] &&
+                              shapeRef.current[i].getAbsolutePosition().y +
+                                value.height *
+                                  (originalImageSize.height / image.height) -
+                                5 // Adjust the offset as needed
+                            }
+                            // width={
+                            //   value.width *
+                            //   (originalImageSize.width / image.width)
+                            // } // Adjust width as needed
+                            // height={
+                            //   value.height *
+                            //   (originalImageSize.width / image.width)
+                            // } // Adjust height as needed
+                            text={`${value?.label}`}
+                            fill="black" // Set the text color
+                          />
+                        </>
                       )} */}
-                    </React.Fragment>
+                    </>
                   );
                 })}
               </Layer>
@@ -697,7 +778,7 @@ const DrawAnnotations = () => {
           }}
           onClose={handleCloseDialog}
         > */}
-          <Popover
+        {/* <Popover
           open={isDialogOpen}
           onClose={handleCloseDialog}
           anchorEl={
@@ -711,8 +792,8 @@ const DrawAnnotations = () => {
             vertical: "top",
             horizontal: "center",
           }}
-        >
-          {/* <IconButton
+        > */}
+        {/* <IconButton
             aria-label="close"
             onClick={handleCloseDialog}
             sx={{
@@ -729,7 +810,7 @@ const DrawAnnotations = () => {
               }}
             />
           </IconButton> */}
-          <DialogTitle>New Box Drawn</DialogTitle>
+        {/* <DialogTitle>New Box Drawn</DialogTitle>
           <DialogContent>
             <Typography>A new box has been drawn!</Typography>
             {selectedBox !== null ? (
@@ -739,11 +820,110 @@ const DrawAnnotations = () => {
           <DialogActions>
             <Button onClick={handleConfirm}>confirm</Button>
             <Button onClick={handleRemove}>remove</Button>
-          </DialogActions>
+          </DialogActions> */}
         {/* </Dialog> */}
-        </Popover>
+        {/* </Popover> */}
+
+        {isDialogOpen &&
+          selectedBox &&
+          annotationsToDraw.map(
+            (value, i) =>
+              selectedBox.id === value.id && (
+                <Box
+                  key={`typography-${value?.id}`} // Make sure to add a unique key
+                  sx={{
+                    position: "fixed",
+                    left:
+                      shapeRef.current[i].getAbsolutePosition().x -
+                      shapeRef.current[i].width() +
+                      50 +
+                      "px",
+                    top:
+                      shapeRef.current[i].getAbsolutePosition().y +
+                      shapeRef.current[i].height() +
+                      20 +
+                      "px",
+                    zIndex: 9999,
+                    // background: "orange",
+                    background: "white", // Set background color
+                    boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)", // Add box shadow
+                    // width:'20vw'
+                  }}
+                  ref={parentRef}
+                  // onClick={handleCloseDialog}
+                >
+                  <DialogTitle>New Box Drawn</DialogTitle>
+                  <DialogContent>
+                    <Typography>A new box has been drawn!</Typography>
+                    {selectedBox !== null ? (
+                      <Typography>{`Details for Box ${selectedBox.value}`}</Typography>
+                    ) : null}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleConfirm}>confirm</Button>
+                    <Button onClick={handleRemove}>remove</Button>
+                  </DialogActions>
+                </Box>
+              )
+          )}
+
+        {hoverId !== "" &&
+          annotationsToDraw.map((value, i) => {
+            if (hoverBox.id === value.id) {
+              const originalY = shapeRef.current[i].getAbsolutePosition().y;
+              const topPosition = Math.min(originalY, window.innerHeight - 100);
+
+              const adjustedTopPosition = topPosition > 100 ? 100 : topPosition;
+              console.log("adjustedposition", adjustedTopPosition);
+              console.log("originaly", originalY);
+            }
+            return (
+              hoverBox.id === value.id && (
+                <Box
+                  key={`typography-${value?.id}`} // Make sure to add a unique key
+                  sx={{
+                    position: "absolute",
+                    left: shapeRef.current[i].getAbsolutePosition().x + "px",
+                    top:
+                      shapeRef.current[i].getAbsolutePosition().y +
+                      shapeRef.current[i].height() +
+                      "px",
+                    // top:
+                    //   adjustedTopPosition + shapeRef.current[i].height() + "px",
+                    // top:
+                    //   Math.min(
+                    //     shapeRef.current[i].getAbsolutePosition().y +
+                    //       shapeRef.current[i].height(),
+                    //     window.innerHeight - 100 // Ensure top is less than 100 from the bottom of the viewport
+                    //   ) + "px",
+                    // top : `{adjustedTopPosition}px`,
+                    zIndex: 9999,
+                    // background: "orange",
+                    background: "white", // Set background color
+                    boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)", // Add box shadow
+                    // overflow:'auto',
+                    // height: '30vh'
+                  }}
+                  // onClick={handleCloseDialog}
+                >
+                  {hoverBox !== null ? (
+                    <Typography
+                      sx={{
+                        background: "orange",
+                        borderRadius: 2,
+                        padding: 0.5,
+                      }}
+                    >
+                      {hoverBox.label}
+                    </Typography>
+                  ) : // <Tooltip title={selectedBox.label} placement="bottom-center" />
+                  null}
+                </Box>
+              )
+            );
+          })}
       </Grid>
-    </>
+    </Box>
   );
 };
 
