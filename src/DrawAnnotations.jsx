@@ -48,6 +48,7 @@ const DrawAnnotations = () => {
   const [transformBox, setTransformBox] = useState(null);
   const [hoverId, sethoverId] = useState("");
   const [tootipId, setTootipId] = useState("");
+  const [isResizing, setisResizing] = useState(false);
   const [isDragging, setisDragging] = useState(false);
   const shapeRef = useRef([]);
   const transformRef = useRef([]);
@@ -75,7 +76,7 @@ const DrawAnnotations = () => {
         // console.log("this called");
         if (transformer && transformer.nodes) {
           const node = shapeRef.current[i];
-          console.log("shapeRef", shapeRef.current[i].getAbsolutePosition());
+          console.log("shapeRef", shapeRef.current[i].attrs.id);
           transformer.nodes([node]);
           transformer.getLayer().batchDraw();
         }
@@ -142,6 +143,19 @@ const DrawAnnotations = () => {
     //   setSelectedBox(null);
     //   sethoverBox(null);
     // }
+    // if(tootipId !== '' && hoverId === ''){
+    //   setTransformBox(null);
+    //   setTootipId('');
+    // }
+    // annotationsToDraw.forEach((value, i) => {
+    //   if (hoverId === '' && shapeRef.current[i].attrs.id !== hoverId) {
+    //     setTransformBox(null);
+    //     setTootipId('');
+    //   } else if (hoverId !== '' && shapeRef.current[i].attrs.id !== hoverId) {
+    //     setTransformBox(null);
+    //     setTootipId('');
+    //   }
+    // });
   };
 
   // console.log("annotations", annotations);
@@ -357,6 +371,7 @@ const DrawAnnotations = () => {
     // console.log(`Mouse over event on box with id: ${value.id}`);
     // You can add more logic based on the mouse over event
     // setSelectedBox(value);
+    textRef.current = value.label;
     sethoverBox(value);
     if (value.label) {
       sethoverId(value.id);
@@ -422,12 +437,18 @@ const DrawAnnotations = () => {
   };
 
   const getTextWidth = (text, font) => {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    // console.log('canvas', canvas);
+    const context = canvas.getContext("2d");
+    // console.log('context', context);
     context.font = font;
     const width = context.measureText(text).width;
     return width;
   };
+
+  // console.log("textref", textRef.current);
+  // console.log('stageRef',stageRef);
+  // console.log('shaperef',shapeRef);
 
   return (
     <Box>
@@ -523,7 +544,7 @@ const DrawAnnotations = () => {
                         onTransformEnd={(event) => {
                           // const node = shapeRef.current;
                           const node = shapeRef.current[i];
-                          // console.log("node", node);
+                          console.log("node", node);
                           if (node) {
                             const scaleX = node.scaleX();
                             const scaleY = node.scaleY();
@@ -531,6 +552,7 @@ const DrawAnnotations = () => {
                             // const scaleY = node.scaleY ? node.scaleY() : 1;
                             node.scaleX(1);
                             node.scaleY(1);
+                            // console.log('node', node);
 
                             const newAttrs = {
                               ...value,
@@ -598,7 +620,15 @@ const DrawAnnotations = () => {
                               (originalImageSize.height / image.height)
                             : value.height
                         }
-                        fill={hoverId === value.id ? hoverRectFillcolor : 'rgba(255,165,0,0.1)'}
+                        fill={
+                          value.label
+                            ? hoverId === value.id
+                              ? hoverRectFillcolor
+                              : value.validated
+                              ? "rgba(34,139,34, 0.1)"
+                              : "rgba(255,165,0,0.1)"
+                            : null
+                        }
                         stroke={
                           value.validated
                             ? validateColor
@@ -646,6 +676,9 @@ const DrawAnnotations = () => {
                             }}
                             onClick={() => setSelectedBox(value)}
                             onMouseDown={onmousedown}
+                            // anchorFill='green'
+                            // anchorSize={5}
+                            // anchorCornerRadius={2}
                           />
                         )}
 
@@ -672,7 +705,6 @@ const DrawAnnotations = () => {
                             width={20} // Adjust width as needed
                             height={20} // Adjust height as needed
                             onClick={handletransformcancle}
-                            ommouseo
                           />
                         )}
 
@@ -705,7 +737,9 @@ const DrawAnnotations = () => {
                         <>
                           <Rect
                             x={
-                              value.x * (originalImageSize.width / image.width) + 10
+                              value.x *
+                                (originalImageSize.width / image.width) +
+                              10
                             }
                             y={
                               shapeRef.current[i] &&
@@ -720,19 +754,24 @@ const DrawAnnotations = () => {
                             //   100
                             // } // Adjust width as needed
                             width={
-                              textRef.current ? getTextWidth(value.label, textRef.current.font) + 30 : 100
+                              // textRef.current ?
+                              getTextWidth(value.label, textRef.current.font) +
+                              30
+                              // : 100
                             } // Adjust width as needed
                             height={
                               // value.height *
                               // (originalImageSize.width / image.width)
                               22
                             } // Adjust height as needed
-                            fill="rgba(255,165,0,0.8)" // Set the background color of the tooltip-like rect
+                            fill={value.validated ? "rgba(38, 194, 129, 1)" : "rgba(255,165,0,1)"} // Set the background color of the tooltip-like rect
                             cornerRadius={5} // Set the radius of the corners
                           />
                           <Text
                             x={
-                              value.x * (originalImageSize.width / image.width) + 20
+                              value.x *
+                                (originalImageSize.width / image.width) +
+                              20
                             }
                             y={
                               shapeRef.current[i] &&
@@ -939,18 +978,18 @@ const DrawAnnotations = () => {
 
         <Dialog
           open={isDialogOpen}
-          onClose={(event, reason) => {
-            if (reason !== "backdropClick") {
-              handleCloseDialog();
-            }
-          }}
+          // onClose={(event, reason) => {
+          //   if (reason !== "backdropClick") {
+          //     handleCloseDialog();
+          //   }
+          // }}
           sx={{
             position: "absolute",
             boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)",
           }}
-          // onClose={handleCloseDialog}
+          onClose={handleCloseDialog}
         >
-        {/* <Popover
+          {/* <Popover
           open={isDialogOpen}
           onClose={handleCloseDialog}
           anchorEl={
@@ -965,7 +1004,7 @@ const DrawAnnotations = () => {
             horizontal: "center",
           }}
         > */}
-        <IconButton
+          <IconButton
             aria-label="close"
             onClick={handleCloseDialog}
             sx={{
@@ -982,7 +1021,7 @@ const DrawAnnotations = () => {
               }}
             />
           </IconButton>
-        <DialogTitle>New Box Drawn</DialogTitle>
+          <DialogTitle>New Box Drawn</DialogTitle>
           <DialogContent>
             <Typography>A new box has been drawn!</Typography>
             {selectedBox !== null ? (
