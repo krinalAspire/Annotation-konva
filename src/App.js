@@ -3,6 +3,7 @@ import './App.css';
 // import { Layer, Stage, Text } from 'react-konva';
 // import ColoreRect from './ColorRect';
 import DrawAnnotations from './DrawAnnotations';
+import TootipPosition from './TootipPosition';
 
 function App() {
   return (
@@ -14,7 +15,8 @@ function App() {
   // </Stage>
   <>
   {/* <h5>Start to draw</h5> */}
-  <DrawAnnotations/>
+  {/* <DrawAnnotations/> */}
+  <TootipPosition />
   </>
   );
 }

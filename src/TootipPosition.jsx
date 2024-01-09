@@ -35,7 +35,7 @@ import CropSquareIcon from "@mui/icons-material/CropSquare";
 import trash from "./x-circle.svg";
 import check from "./check-circle.svg";
 
-const DrawAnnotations = () => {
+const TootipPosition = () => {
   const [annotations, setAnnotations] = useState([]);
   const [newAnnotation, setNewAnnotation] = useState([]);
   const [image] = useState(new window.Image());
@@ -87,26 +87,13 @@ const DrawAnnotations = () => {
     "version8",
   ];
 
-  // useEffect(() => {
-  //   if (selectedBox) {
-  //     console.log("this called");
-  //     console.log(
-  //       "transformer",
-  //       transformRef.current.nodes([shapeRef.current])
-  //     );
-  //     console.log("selectedbox", selectedBox);
-  //     transformRef.current.nodes([shapeRef.current]);
-  //     transformRef.current.getLayer().batchDraw();
-  //   }
-  // }, [selectedBox]);
-
   useEffect(() => {
     if (transformBox && hoverId !== "") {
       transformRef.current.forEach((transformer, i) => {
         // console.log("this called");
         if (transformer && transformer.nodes) {
           const node = shapeRef.current[i];
-          console.log("shapeRef", shapeRef.current[i].attrs.id);
+          //   console.log("shapeRef", shapeRef.current[i].attrs.id);
           transformer.nodes([node]);
           transformer.getLayer().batchDraw();
         }
@@ -129,45 +116,17 @@ const DrawAnnotations = () => {
     });
   }, []);
 
-  // const originalImageSize = { width: 2481, height: 3508 };
-  // const originalImageSize = { width: 1000, height: 1000 };
-
   const randomStr = randomstring.generate(6);
-  // console.log("image", image.width);
 
   image.src = Icon;
   trashimage.src = trash;
   checkimage.src = check;
-  // image.src = "http://192.168.2.213:9014/images/1703675661012-invoice_7.jpg";
-  //   image.src = "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg";
 
   useEffect(() => {
     // Replace this with your actual initial data
     setAnnotations(initialAnnotations);
     sethoverId("");
   }, []);
-
-  // useEffect(() => {
-  //   // Replace this with your actual initial data
-  //   setAnnotations(initialAnnotations.map(annotation => ({
-  //     ...annotation,
-  //     color: getAnnotationColor(annotation.version),
-  //   })));
-  //   sethoverId("");
-  // }, []);
-
-  // const getAnnotationColor = (version) => {
-  //   switch (version) {
-  //     case "version1":
-  //       return initialDataColor;
-  //     case "version2":
-  //       return newAnnotationColor;
-  //     case "version3":
-  //       return validateColor;
-  //     default:
-  //       return "black"; // Default color if version doesn't match any case
-  //   }
-  // };
 
   const handleMouseEnter = (event) => {
     event.target.getStage().container().style.cursor = "crosshair";
@@ -180,37 +139,24 @@ const DrawAnnotations = () => {
       setNewAnnotation([{ x, y, width: 0, height: 0, id: randomStr }]);
     }
     // setSelectedBox(null);
-    // if (selectedBox && !selectedBox.label) {
-    //   const updatedAnnotations = annotations.filter(
-    //     (box) => box.id !== selectedBox.id
-    //   );
-    //   setTransformBox(null);
-    //   setTootipId("");
-    //   setAnnotations(updatedAnnotations);
-    //   setDialogOpen(false);
-    //   setSelectedBox(null);
-    //   sethoverBox(null);
-    // } else if (hoverId === "" && selectedBox) {
-    //   setDialogOpen(false);
-    //   setSelectedBox(null);
-    //   sethoverBox(null);
-    // }
-    // if(tootipId !== '' && hoverId === ''){
-    //   setTransformBox(null);
-    //   setTootipId('');
-    // }
-    // annotationsToDraw.forEach((value, i) => {
-    //   if (hoverId === '' && shapeRef.current[i].attrs.id !== hoverId) {
-    //     setTransformBox(null);
-    //     setTootipId('');
-    //   } else if (hoverId !== '' && shapeRef.current[i].attrs.id !== hoverId) {
-    //     setTransformBox(null);
-    //     setTootipId('');
-    //   }
-    // });
+    if (selectedBox && !selectedBox.label) {
+      const updatedAnnotations = annotations.filter(
+        (box) => box.id !== selectedBox.id
+      );
+      setTransformBox(null);
+      setTootipId("");
+      setAnnotations(updatedAnnotations);
+      setDialogOpen(false);
+      setSelectedBox(null);
+      sethoverBox(null);
+    } else if (hoverId === "" && selectedBox) {
+      setDialogOpen(false);
+      setSelectedBox(null);
+      sethoverBox(null);
+    }
   };
 
-  console.log("annotations", annotations);
+  //   console.log("annotations", annotations);
   // console.log("newAnnotation", newAnnotation);
 
   const handleMouseUp = (event) => {
@@ -268,17 +214,6 @@ const DrawAnnotations = () => {
     }
   };
 
-  // const handleCloseDialog = () => {
-  //   setDialogOpen(false);
-  // };
-
-  // const handleRemove = () => {
-  //   annotations.pop();
-  //   setNewAnnotation([]);
-  //   setAnnotations([...annotations]);
-  //   setDialogOpen(false);
-  // }
-
   const handleBoxClick = (value) => {
     // Handle box click here, e.g., fetch data based on id
     // and open a popup with the data
@@ -305,12 +240,6 @@ const DrawAnnotations = () => {
     setDialogOpen(false);
     setSelectedBox(null);
     sethoverBox(null);
-    // if(tootipId !== '' && selectedBox && transformBox && selectedBox.id === transformBox.id && selectedBox.x === transformBox.x){
-    //   setTransformBox(null);
-    // } else {
-    //   setSelectedBox(null);
-    // }
-    // setTransformBox(null);
   };
 
   // console.log("selectedbpx", selectedBox);
@@ -383,21 +312,6 @@ const DrawAnnotations = () => {
     setTootipId("");
   };
 
-  // const handleRemove = () => {
-  //   if (selectedBox !== null) {
-  //     const updatedAnnotations = annotations.filter(
-  //       (box) => box.id !== selectedBox.id
-  //     );
-  //     setAnnotations(updatedAnnotations);
-  //   }
-  //   setNewAnnotation([]);
-  //   setDialogOpen(false);
-  //   setSelectedBox(null);
-  // };
-
-  // console.log("selectedbox", selectedBox);
-  // console.log("dialogbox", isDialogOpen);
-
   const annotationsToDraw = [...annotations, ...newAnnotation];
 
   useEffect(() => {
@@ -422,9 +336,6 @@ const DrawAnnotations = () => {
     sethoverId("");
     setTootipId("");
     setNewAnnotation([]);
-    // setDialogOpen(false);
-    // setSelectedBox(null);
-    // setisDragging(false);
     sethoverBox(null);
   };
 
@@ -495,39 +406,10 @@ const DrawAnnotations = () => {
     setDialogOpen(false);
   };
 
-  // console.log("transformerref", transformRef);
-
   const handletransformcancle = () => {
     setTransformBox(null);
     setTootipId("");
   };
-
-  const getTextWidth = (text, font) => {
-    const canvas = document.createElement("canvas");
-    // console.log('canvas', canvas);
-    const context = canvas.getContext("2d");
-    // console.log('context', context);
-    context.font = font;
-    const width = context.measureText(text).width;
-    return width;
-  };
-
-  // console.log("textref", textRef.current);
-  // console.log('stageRef',stageRef);
-  // console.log('shaperef',shapeRef);
-  // console.log('selecteditem', selectedItem);
-
-  // const getBackgroundForVersion = (version, opacity) => {
-  //   const index = versionOptions.indexOf(version);
-  //   // const colors = ["red", "blue", "grey", /* ... */];
-  //   const colors = [
-  //     `rgba(255, 0, 0, ${opacity})`, // Red
-  //     `rgba(0, 0, 255, ${opacity})`, // Blue
-  //     `rgba(128, 128, 128, ${opacity})`, // Grey
-  //     // Add more colors as needed
-  //   ];
-  //   return index !== -1 ? colors[index % colors.length] : "black";
-  // };
 
   const getBackgroundForVersion = (version, opacity) => {
     const index = versionOptions.indexOf(version);
@@ -545,7 +427,7 @@ const DrawAnnotations = () => {
     }
   });
 
-  console.log("versionSet", Array.from(versionSet));
+  //   console.log("versionSet", Array.from(versionSet));
 
   const transformMouseEnter = (event) => {
     event.target.getStage().container().style.cursor = "pointer";
@@ -555,6 +437,19 @@ const DrawAnnotations = () => {
   const transformMouseLeave = (event) => {
     event.target.getStage().container().style.cursor = "crosshair";
   };
+
+  const scrollBoxRef = useRef();
+
+  const handleScroll = () => {
+    const boxScrollPosition = {
+      x: parentRef.current.scrollLeft,
+      y: parentRef.current.scrollTop,
+    };
+
+    console.log("Box Scroll Position:", boxScrollPosition);
+  };
+
+  console.log(" parentRef.current.scrollLeft", parentRef.current?.scrollTop);
 
   return (
     <Box>
@@ -658,6 +553,7 @@ const DrawAnnotations = () => {
           </Box>
           <Box
             ref={parentRef}
+            onScroll={handleScroll}
             sx={{ width: "auto", height: "92vh", overflow: "auto" }}
           >
             <Stage
@@ -684,77 +580,21 @@ const DrawAnnotations = () => {
               </Layer>
               <Layer>
                 {annotationsToDraw.map((value, i) => {
-                  // console.log("value", value);
-                  // console.log('i', i);
                   return (
-                    // <Rect
-                    //   key={value.id}
-                    //   x={value.x}
-                    //   y={value.y}
-                    //   width={value.width}
-                    //   height={value.height}
-                    //   //   fill="transparent"
-                    //   stroke={color}
-                    //   draggable
-                    // />
-                    // <Rect
-                    //   key={value.id}
-                    //   x={value.x * (900 / value.imageWidth)}
-                    //   y={value.y * (700 / value.imageHeight)}
-                    //   width={value.width * (900 / value.imageWidth)}
-                    //   height={value.height * (700 / value.imageHeight)}
-                    //   stroke={color}
-                    //   draggable
-                    // />
-                    // <Rect
-                    //   key={value.id}
-                    //   x={value.x}
-                    //   y={value.y}
-                    //   width={value.width}
-                    //   height={value.height}
-                    //   onMouseEnter={onMouseEnter}
-                    //   onMouseLeave={onMouseLeave}
-                    //   // stroke={color}
-                    //   // stroke={value === newAnnotation[0] ? newAnnotationColor : color}
-                    //   fill="transparent"
-                    //   stroke={value.color || initialDataColor}
-                    //   onClick={() => handleBoxClick(value)}
-                    //   // draggable
-                    // />
                     <>
                       <Rect
                         key={value.id}
-                        // ref={shapeRef}
-                        // ref={shapeRef.current[i]}
                         ref={(node) => (shapeRef.current[i] = node)}
                         {...value}
-                        // onTransformEnd={event => {
-                        //   const node = shapeRef.current;
-                        //   const scaleX = node.scaleX();
-                        //   const scaleY = node.scaleY();
-                        //   node.scaleX(1);
-                        //   node.scaleY(1);
-                        //   onChange({
-                        //     ...shapeProps,
-                        //     x: node.x(),
-                        //     y: node.y(),
-                        //     // set minimal value
-                        //     width: Math.max(5, node.width() * scaleX),
-                        //     height: Math.max(node.height() * scaleY)
-                        //   });
-                        // }}
                         onTransformEnd={(event) => {
                           // const node = shapeRef.current;
                           const node = shapeRef.current[i];
-                          console.log("node", node);
+                          //   console.log("node", node);
                           if (node) {
                             const scaleX = node.scaleX();
                             const scaleY = node.scaleY();
-                            // const scaleX = node.scaleX ? node.scaleX() : 1;
-                            // const scaleY = node.scaleY ? node.scaleY() : 1;
                             node.scaleX(1);
                             node.scaleY(1);
-                            // console.log('node', node);
 
                             const newAttrs = {
                               ...value,
@@ -764,39 +604,18 @@ const DrawAnnotations = () => {
                               y:
                                 node.y() /
                                 (originalImageSize.height / image.height),
-                              // set minimal value
-                              // width: Math.max(5, node.width() * scaleX),
                               width:
                                 (node.width() * scaleX) /
                                 (originalImageSize.width / image.width),
-                              // height: Math.max(node.height() * scaleY),
                               height:
                                 (node.height() * scaleY) /
                                 (originalImageSize.height / image.height),
                             };
-                            // console.log("newAttrs", newAttrs);
 
                             // Call your onChange function directly
                             const rects = annotations.slice();
                             rects[i] = newAttrs;
                             setAnnotations(rects);
-                            // setTransformBox(null);
-                            // if (value.id === transformBox.id) {
-                            //   setSelectedBox(value);
-                            //   setDialogOpen(true);
-                            // }
-
-                            // const transformerNode = transformRef.current[i];
-                            // const rectNode = shapeRef.current[i];
-                            // if (transformerNode && rectNode) {
-                            //   const rectPos = rectNode.position();
-                            //   const iconPos =
-                            //     transformerNode.getAbsolutePosition();
-                            //   setIconPosition({
-                            //     x: iconPos.x - rectPos.x,
-                            //     y: iconPos.y - rectPos.y,
-                            //   });
-                            // }
                           }
                         }}
                         x={
@@ -867,10 +686,7 @@ const DrawAnnotations = () => {
                         transformBox.id === value.id && (
                           <Transformer
                             key={`transformer-${value.id}`} // Ensure a unique key for each Transformer
-                            // ref={transformRef.current[i]}
                             ref={(node) => (transformRef.current[i] = node)}
-                            // ref={transformRef}
-                            // flipEnabled={false}
                             rotateEnabled={false}
                             boundBoxFunc={(oldBox, newBox) => {
                               // limit resize
@@ -952,239 +768,11 @@ const DrawAnnotations = () => {
                             onMouseLeave={transformMouseLeave}
                           />
                         )}
-
-                      {hoverId === value.id && (
-                        <>
-                          <Rect
-                            x={
-                              value.x *
-                                (originalImageSize.width / image.width) +
-                              10
-                            }
-                            y={
-                              shapeRef.current[i] &&
-                              shapeRef.current[i].getAbsolutePosition().y +
-                                value.height *
-                                  (originalImageSize.height / image.height) -
-                                5 // Adjust the offset as needed
-                            }
-                            // width={
-                            //   // value.width *
-                            //   // (originalImageSize.width / image.width)
-                            //   100
-                            // } // Adjust width as needed
-                            width={
-                              // textRef.current ?
-                              getTextWidth(value.label, textRef.current.font) +
-                              30
-                              // : 100
-                            } // Adjust width as needed
-                            height={
-                              // value.height *
-                              // (originalImageSize.width / image.width)
-                              22
-                            } // Adjust height as needed
-                            fill={
-                              value.version === selectedItem && value.validated
-                                ? "rgba(38, 194, 129, 1)"
-                                : value.version !== selectedItem &&
-                                  value.validated
-                                ? getBackgroundForVersion(value.version, 1)
-                                : "rgba(255,165,0,1)"
-                            } // Set the background color of the tooltip-like rect
-                            cornerRadius={5} // Set the radius of the corners
-                          />
-                          <Text
-                            x={
-                              value.x *
-                                (originalImageSize.width / image.width) +
-                              20
-                            }
-                            y={
-                              shapeRef.current[i] &&
-                              shapeRef.current[i].getAbsolutePosition().y +
-                                value.height *
-                                  (originalImageSize.height / image.height) -
-                                0.5 // Adjust the offset as needed
-                            }
-                            // width={
-                            //   value.width *
-                            //   (originalImageSize.width / image.width)
-                            // } // Adjust width as needed
-                            // height={
-                            //   value.height *
-                            //   (originalImageSize.width / image.width)
-                            // } // Adjust height as needed
-                            text={`${value?.label}`}
-                            fill="black" // Set the text color
-                            ref={textRef}
-                          />
-                        </>
-                      )}
                     </>
                   );
                 })}
               </Layer>
             </Stage>
-            {/* {isDialogOpen &&
-              selectedBox &&
-              annotationsToDraw.map(
-                (value, i) =>
-                  selectedBox.id === value.id && (
-                    <Box
-                      key={`typography-${value?.id}`} // Make sure to add a unique key
-                      sx={{
-                        position: "fixed",
-                        left:
-                          shapeRef.current[i].getAbsolutePosition().x -
-                          shapeRef.current[i].width() +
-                          50 +
-                          "px",
-                        top:
-                          shapeRef.current[i].getAbsolutePosition().y +
-                          shapeRef.current[i].height() +
-                          20 +
-                          "px",
-                        zIndex: 9999,
-                        // background: "orange",
-                        background: "white", // Set background color
-                        boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)", // Add box shadow
-                        // width:'20vw'
-                      }}
-                      ref={parentRef}
-                      // onClick={handleCloseDialog}
-                    >
-                      <DialogTitle>New Box Drawn</DialogTitle>
-                      <DialogContent>
-                        <Typography>A new box has been drawn!</Typography>
-                        {selectedBox !== null ? (
-                          <Typography>{`Details for Box ${selectedBox.value}`}</Typography>
-                        ) : null}
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={handleConfirm}>confirm</Button>
-                        <Button onClick={handleRemove}>remove</Button>
-                      </DialogActions>
-                    </Box>
-                  )
-              )} */}
-
-            {/* {hoverId !== "" &&
-              annotationsToDraw.map((value, i) => {
-                if (hoverBox.id === value.id) {
-                  const originalY = shapeRef.current[i].getAbsolutePosition().y;
-                  const topPosition = Math.min(
-                    originalY,
-                    window.innerHeight - 100
-                  );
-
-                  const adjustedTopPosition =
-                    topPosition > 100 ? 100 : topPosition;
-                  console.log("adjustedposition", adjustedTopPosition);
-                  console.log("originaly", originalY);
-                }
-                return (
-                  hoverBox.id === value.id && (
-                    <Box
-                      key={`typography-${value?.id}`} // Make sure to add a unique key
-                      sx={{
-                        position: "absolute",
-                        left:
-                          shapeRef.current[i].getAbsolutePosition().x + "px",
-                        top:
-                          shapeRef.current[i].getAbsolutePosition().y +
-                          shapeRef.current[i].height() +
-                          "px",
-                          // left:
-                          //   value.x * (originalImageSize.width / image.width) + "px",
-                          
-                          // top:
-                          //   shapeRef.current[i] &&
-                          //   shapeRef.current[i].getAbsolutePosition().y +
-                          //     value.height *
-                          //       (originalImageSize.height / image.height) -
-                          //     5  + "px" ,  
-                        // top:
-                        //   adjustedTopPosition + shapeRef.current[i].height() + "px",
-                        // top:
-                        //   Math.min(
-                        //     shapeRef.current[i].getAbsolutePosition().y +
-                        //       shapeRef.current[i].height(),
-                        //     window.innerHeight - 100 // Ensure top is less than 100 from the bottom of the viewport
-                        //   ) + "px",
-                        // top : `{adjustedTopPosition}px`,
-                        zIndex: 9999,
-                        // background: "orange",
-                        background: "white", // Set background color
-                        boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)", // Add box shadow
-                        // overflow:'auto',
-                        // height: '30vh'
-                      }}
-                      // onClick={handleCloseDialog}
-                    >
-                      {hoverBox !== null ? (
-                        <Typography
-                          sx={{
-                            background: "orange",
-                            borderRadius: 2,
-                            padding: 0.5,
-                          }}
-                        >
-                          {hoverBox.label}
-                        </Typography>
-                      ) : // <Tooltip title={selectedBox.label} placement="bottom-center" />
-                      null}
-                    </Box>
-                  )
-                );
-              })} */}
-
-            {/* {hoverId !== "" &&
-              annotationsToDraw.map((value, i) => {
-                if (hoverBox.id === value.id) {
-                  const originalY = shapeRef.current[i].getAbsolutePosition().y;
-                  const topPosition = Math.min(
-                    originalY,
-                    window.innerHeight - 100
-                  );
-
-                  const adjustedTopPosition =
-                    topPosition > 100 ? 100 : topPosition + window.scrollY;
-
-                  return (
-                    hoverBox.id === value.id && (
-                      <Box
-                        key={`typography-${value?.id}`} // Make sure to add a unique key
-                        sx={{
-                          position: "absolute",
-                          left:
-                            shapeRef.current[i].getAbsolutePosition().x + "px",
-                          top:
-                            adjustedTopPosition +
-                            shapeRef.current[i].height() +
-                            "px",
-                          zIndex: 9999,
-                          background: "white", // Set background color
-                          boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)", // Add box shadow
-                        }}
-                      >
-                        {hoverBox !== null ? (
-                          <Typography
-                            sx={{
-                              background: "orange",
-                              borderRadius: 2,
-                              padding: 0.5,
-                            }}
-                          >
-                            {hoverBox.label}
-                          </Typography>
-                        ) : null}
-                      </Box>
-                    )
-                  );
-                }
-                return null;
-              })} */}
           </Box>
         </Grid>
         <Grid item xs={3.5}>
@@ -1203,66 +791,7 @@ const DrawAnnotations = () => {
           </Box>
         </Grid>
 
-        <Dialog
-          open={isDialogOpen}
-          // onClose={(event, reason) => {
-          //   if (reason !== "backdropClick") {
-          //     handleCloseDialog();
-          //   }
-          // }}
-          sx={{
-            position: "absolute",
-            boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)",
-          }}
-          onClose={handleCloseDialog}
-        >
-          {/* <Popover
-          open={isDialogOpen}
-          onClose={handleCloseDialog}
-          anchorEl={
-            selectedBox ? document.getElementById(selectedBox.id) : null
-          }
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-        > */}
-          <IconButton
-            aria-label="close"
-            onClick={handleCloseDialog}
-            sx={{
-              position: "absolute",
-              right: 2,
-              top: 2,
-            }}
-          >
-            {" "}
-            <HighlightOffIcon
-              sx={{
-                width: "24px",
-                height: "24px",
-              }}
-            />
-          </IconButton>
-          <DialogTitle>New Box Drawn</DialogTitle>
-          <DialogContent>
-            <Typography>A new box has been drawn!</Typography>
-            {selectedBox !== null ? (
-              <Typography>{`Details for Box ${selectedBox.value}`}</Typography>
-            ) : null}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleConfirm}>confirm</Button>
-            <Button onClick={handleRemove}>remove</Button>
-          </DialogActions>
-        </Dialog>
-        {/* </Popover> */}
-
-        {/* {isDialogOpen &&
+        {isDialogOpen &&
           selectedBox &&
           annotationsToDraw.map(
             (value, i) =>
@@ -1309,60 +838,62 @@ const DrawAnnotations = () => {
           annotationsToDraw.map((value, i) => {
             if (hoverBox.id === value.id) {
               const originalY = shapeRef.current[i].getAbsolutePosition().y;
-              const topPosition = Math.min(originalY, window.innerHeight - 100);
+              const originalX = shapeRef.current[i].getAbsolutePosition().x;
 
-              const adjustedTopPosition = topPosition > 100 ? 100 : topPosition;
-              console.log("adjustedposition", adjustedTopPosition);
-              console.log("originaly", originalY);
+              const topPosition =
+                parentRef.current.scrollTop !== null && parentRef.current.scrollTop > 0
+                  ?
+                   originalY - parentRef.current.scrollTop + 13
+                  : Math.min(
+                      originalY + parentRef.current.scrollTop ,
+                      window.innerHeight - 50
+                    );
+
+              const leftPosition = originalX + parentRef.current.scrollLeft;
+
+              const adjustedTopPosition = topPosition;
+
+              //   console.log('topposition', topPosition);
+
+              return (
+                hoverBox.id === value.id && (
+                  <Box
+                    key={`typography-${value?.id}`}
+                    sx={{
+                      position: "absolute",
+                      left: leftPosition + "px",
+                      //   top:
+                      //     adjustedTopPosition > 100
+                      //       ? adjustedTopPosition -
+                      //         (adjustedTopPosition - 300) +
+                      //         "px"
+                      //       : adjustedTopPosition + "px",
+                      top: adjustedTopPosition + "px",
+                      zIndex: 9999,
+                    //   background: "white",
+                      boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    {hoverBox !== null ? (
+                      <Typography
+                        sx={{
+                          background: "orange",
+                          borderRadius: 2,
+                          padding: 0.5,
+                        }}
+                      >
+                        {hoverBox.label}
+                      </Typography>
+                    ) : null}
+                  </Box>
+                )
+              );
             }
-            return (
-              hoverBox.id === value.id && (
-                <Box
-                  key={`typography-${value?.id}`} // Make sure to add a unique key
-                  sx={{
-                    position: "absolute",
-                    left: shapeRef.current[i].getAbsolutePosition().x + "px",
-                    top:
-                      shapeRef.current[i].getAbsolutePosition().y +
-                      shapeRef.current[i].height() +
-                      "px",
-                    // top:
-                    //   adjustedTopPosition + shapeRef.current[i].height() + "px",
-                    // top:
-                    //   Math.min(
-                    //     shapeRef.current[i].getAbsolutePosition().y +
-                    //       shapeRef.current[i].height(),
-                    //     window.innerHeight - 100 // Ensure top is less than 100 from the bottom of the viewport
-                    //   ) + "px",
-                    // top : `{adjustedTopPosition}px`,
-                    zIndex: 9999,
-                    // background: "orange",
-                    background: "white", // Set background color
-                    boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)", // Add box shadow
-                    // overflow:'auto',
-                    // height: '30vh'
-                  }}
-                  // onClick={handleCloseDialog}
-                >
-                  {hoverBox !== null ? (
-                    <Typography
-                      sx={{
-                        background: "orange",
-                        borderRadius: 2,
-                        padding: 0.5,
-                      }}
-                    >
-                      {hoverBox.label}
-                    </Typography>
-                  ) : // <Tooltip title={selectedBox.label} placement="bottom-center" />
-                  null}
-                </Box>
-              )
-            );
-          })} */}
+            return null;
+          })}
       </Grid>
     </Box>
   );
 };
 
-export default DrawAnnotations;
+export default TootipPosition;

@@ -8,6 +8,7 @@ export const initialAnnotations = [
     label: "InvoiceNumber",
     value: "54212825",
     section: "InvoiceDetails",
+    // version: 'version1'
   },
   {
     id: "DJya8F",
@@ -18,6 +19,7 @@ export const initialAnnotations = [
     label: "InvoiceDate",
     value: "05/01/2015",
     section: "InvoiceDetails",
+    // version: 'version2'
   },
   {
     id: "TXK1xE",
@@ -28,6 +30,7 @@ export const initialAnnotations = [
     label: "SellerName",
     value: "Hutchinson PLC",
     section: "SellerDetails",
+    // version: 'version3'
   },
   {
     id: "ZXYJPY",
