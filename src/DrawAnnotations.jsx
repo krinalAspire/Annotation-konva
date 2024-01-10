@@ -106,7 +106,7 @@ const DrawAnnotations = () => {
         // console.log("this called");
         if (transformer && transformer.nodes) {
           const node = shapeRef.current[i];
-          console.log("shapeRef", shapeRef.current[i].attrs.id);
+          // console.log("shapeRef", shapeRef.current[i].attrs.id);
           transformer.nodes([node]);
           transformer.getLayer().batchDraw();
         }
@@ -453,8 +453,9 @@ const DrawAnnotations = () => {
     } else if (value.version !== selectedItem && value.validated) {
       // sethoverRectFillcolor("rgba(255,165,0,0.3)");
       // getBackgroundForVersion(value.version, 0.3)
-      const colorWithOpacity = getBackgroundForVersion(value.version, 0.3);
-      sethoverRectFillcolor(colorWithOpacity);
+      // const colorWithOpacity = getBackgroundForVersion(value.version, 0.3);
+      // sethoverRectFillcolor(colorWithOpacity);
+      sethoverRectFillcolor("rgba(255,165,0,0.3)");
     } else {
       sethoverRectFillcolor("rgba(255,165,0,0.3)");
     }
@@ -529,23 +530,23 @@ const DrawAnnotations = () => {
   //   return index !== -1 ? colors[index % colors.length] : "black";
   // };
 
-  const getBackgroundForVersion = (version, opacity) => {
-    const index = versionOptions.indexOf(version);
-    const hue = (index * 137.508) % 360; // 137.508 is an arbitrary constant to provide variation
-    const color = `hsla(${hue}, 100%, 50%, ${opacity})`;
+  // const getBackgroundForVersion = (version, opacity) => {
+  //   const index = versionOptions.indexOf(version);
+  //   const hue = (index * 137.508) % 360; // 137.508 is an arbitrary constant to provide variation
+  //   const color = `hsla(${hue}, 100%, 50%, ${opacity})`;
 
-    return index !== -1 ? color : "black";
-  };
+  //   return index !== -1 ? color : "black";
+  // };
 
-  const versionSet = new Set();
+  // const versionSet = new Set();
 
-  annotationsToDraw.forEach((value) => {
-    if (value.version) {
-      versionSet.add(value.version);
-    }
-  });
+  // annotationsToDraw.forEach((value) => {
+  //   if (value.version) {
+  //     versionSet.add(value.version);
+  //   }
+  // });
 
-  console.log("versionSet", Array.from(versionSet));
+  // console.log("versionSet", Array.from(versionSet));
 
   const transformMouseEnter = (event) => {
     event.target.getStage().container().style.cursor = "pointer";
@@ -573,10 +574,10 @@ const DrawAnnotations = () => {
                 variant="dense"
                 sx={{ display: "flex", justifyContent: "flex-end" }}
               >
-                {Array.from(versionSet).map((value) => {
+                {/* {Array.from(versionSet).map((value) => {
                   if (value !== selectedItem) {
                     return (
-                      <>
+                      <Box sx={{ml:1, display: 'flex',alignItems: 'center'}}>
                         <Box
                           sx={{
                             width: { xs: "10px", lg: "12px" },
@@ -587,28 +588,28 @@ const DrawAnnotations = () => {
                           }}
                         />
                         <Typography color="black">{value}</Typography>
-                      </>
+                      </Box>
                     );
                   }
                   return null;
-                })}
+                })} */}
 
                 <Button
                   onClick={handleClick}
                   // className={classes.MonthselectDropdownbutton}
-                  endIcon={
-                    <IconButton size="small" edge="start">
-                      {/* <KeyboardArrowDownIcon /> */}
-                      <Box
-                        sx={{
-                          width: { xs: "10px", lg: "12px" },
-                          height: { xs: "10px", lg: "12px" },
-                          // background:'red'
-                          background: getBackgroundForVersion(selectedItem, 1),
-                        }}
-                      />
-                    </IconButton>
-                  }
+                  // endIcon={
+                  //   <IconButton size="small" edge="start">
+                  //     {/* <KeyboardArrowDownIcon /> */}
+                  //     <Box
+                  //       sx={{
+                  //         width: { xs: "10px", lg: "12px" },
+                  //         height: { xs: "10px", lg: "12px" },
+                  //         // background:'red'
+                  //         background: getBackgroundForVersion(selectedItem, 1),
+                  //       }}
+                  //     />
+                  //   </IconButton>
+                  // }
                   sx={{
                     ml: 2,
                     background: "lightgrey",
@@ -641,14 +642,14 @@ const DrawAnnotations = () => {
                     <MenuItem key={option} onClick={() => handleClose(option)}>
                       <>
                         <Typography mr={1.5}>{option}</Typography>
-                        <Box
+                        {/* <Box
                           sx={{
                             width: { xs: "10px", lg: "12px" },
                             height: { xs: "10px", lg: "12px" },
                             // background:'red'
                             background: getBackgroundForVersion(option, 1),
                           }}
-                        />
+                        /> */}
                       </>
                     </MenuItem>
                   ))}
@@ -746,7 +747,7 @@ const DrawAnnotations = () => {
                         onTransformEnd={(event) => {
                           // const node = shapeRef.current;
                           const node = shapeRef.current[i];
-                          console.log("node", node);
+                          // console.log("node", node);
                           if (node) {
                             const scaleX = node.scaleX();
                             const scaleY = node.scaleY();
@@ -831,7 +832,7 @@ const DrawAnnotations = () => {
                               ? "rgba(34,139,34, 0.1)"
                               : value.version !== selectedItem &&
                                 value.validated
-                              ? getBackgroundForVersion(value.version, 0.1)
+                              ? "rgba(255,165,0,0.1)"
                               : "rgba(255,165,0,0.1)"
                             : null
                         }
@@ -839,7 +840,8 @@ const DrawAnnotations = () => {
                           value.version === selectedItem && value.validated
                             ? validateColor
                             : value.version !== selectedItem && value.validated
-                            ? getBackgroundForVersion(value.version, 1)
+                            // ? getBackgroundForVersion(value.version, 1)
+                            ? initialDataColor
                             : value.color || initialDataColor
                         }
                         onClick={() => handleBoxClick(value)}
@@ -882,15 +884,16 @@ const DrawAnnotations = () => {
                               }
                               return newBox;
                             }}
-                            onClick={() => setSelectedBox(value)}
-                            onMouseDown={onmousedown}
+                            // onClick={() => setSelectedBox(value)}
+                            // onMouseDown={onmousedown}
                             // anchorFill='green'
                             anchorFill={
                               value.version === selectedItem && value.validated
                                 ? validateColor
                                 : value.version !== selectedItem &&
                                   value.validated
-                                ? getBackgroundForVersion(value.version, 1)
+                                // ? getBackgroundForVersion(value.version, 1)
+                                ? initialDataColor
                                 : value.color || initialDataColor
                             }
                             anchorSize={8}
@@ -989,7 +992,8 @@ const DrawAnnotations = () => {
                                 ? "rgba(38, 194, 129, 1)"
                                 : value.version !== selectedItem &&
                                   value.validated
-                                ? getBackgroundForVersion(value.version, 1)
+                                // ? getBackgroundForVersion(value.version, 1)
+                                ? "rgba(255,165,0,1)"
                                 : "rgba(255,165,0,1)"
                             } // Set the background color of the tooltip-like rect
                             cornerRadius={5} // Set the radius of the corners

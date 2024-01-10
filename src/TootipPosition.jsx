@@ -61,9 +61,20 @@ const TootipPosition = () => {
   const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
   const stageRef = useRef(null);
   const textRef = useRef(null);
+  
+  const versionOptions = [
+    "version1",
+    "version2",
+    "version3",
+    "version4",
+    "version5",
+    "version6",
+    "version7",
+    "version8",
+  ];
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedItem, setSelectedItem] = useState("version1");
+  const [selectedItem, setSelectedItem] = useState(versionOptions[0]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -76,16 +87,6 @@ const TootipPosition = () => {
     }
   };
 
-  const versionOptions = [
-    "version1",
-    "version2",
-    "version3",
-    "version4",
-    "version5",
-    "version6",
-    "version7",
-    "version8",
-  ];
 
   useEffect(() => {
     if (transformBox && hoverId !== "") {
@@ -442,14 +443,18 @@ const TootipPosition = () => {
 
   const handleScroll = () => {
     const boxScrollPosition = {
-      x: parentRef.current.scrollLeft,
-      y: parentRef.current.scrollTop,
+      x: parentRef.current?.scrollLeft,
+      y: parentRef.current?.scrollTop,
     };
 
-    console.log("Box Scroll Position:", boxScrollPosition);
+    sethoverId("");
+    setSelectedBox(null);
+    setTransformBox(null);
+    // console.log("Box Scroll Position:", boxScrollPosition);
   };
 
   console.log(" parentRef.current.scrollLeft", parentRef.current?.scrollTop);
+  // console.log('selectedbox', selectedBox);
 
   return (
     <Box>
@@ -793,28 +798,56 @@ const TootipPosition = () => {
 
         {isDialogOpen &&
           selectedBox &&
-          annotationsToDraw.map(
-            (value, i) =>
-              selectedBox.id === value.id && (
+          annotationsToDraw.map((value, i) => {
+            const originalY = shapeRef.current[i].getAbsolutePosition().y;
+            const originalX = shapeRef.current[i].getAbsolutePosition().x;
+
+            const topPosition =
+              parentRef.current?.scrollTop !== null &&
+              parentRef.current?.scrollTop > 0
+                ? originalY - parentRef.current?.scrollTop + 70 :
+                // : Math.min(
+                    originalY + parentRef.current?.scrollTop + 70
+                  //   window.innerHeight - 50
+                  // );
+
+            const leftPosition = originalX + parentRef.current?.scrollLeft;
+
+            const adjustedTopPosition = topPosition;
+            if (selectedBox.id === value.id) {
+              // console.log('adjustedposition', adjustedTopPosition);
+              // console.log('leftPosition', leftPosition);
+              return (
                 <Box
                   key={`typography-${value?.id}`} // Make sure to add a unique key
                   sx={{
-                    position: "fixed",
-                    left:
-                      shapeRef.current[i].getAbsolutePosition().x -
-                      shapeRef.current[i].width() +
-                      50 +
-                      "px",
-                    top:
-                      shapeRef.current[i].getAbsolutePosition().y +
-                      shapeRef.current[i].height() +
-                      20 +
-                      "px",
+                    position: "absolute",
+                    // left:
+                    //   shapeRef.current[i].getAbsolutePosition().x -
+                    //   shapeRef.current[i].width() +
+                    //   50 +
+                    //   "px",
+                    // top:
+                    //   shapeRef.current[i].getAbsolutePosition().y +
+                    //   shapeRef.current[i].height() +
+                    //   20 +
+                    //   "px",
+                    left: leftPosition + "px",
+                    //   top:
+                    //     adjustedTopPosition > 100
+                    //       ? adjustedTopPosition -
+                    //         (adjustedTopPosition - 300) +
+                    //         "px"
+                    //       : adjustedTopPosition + "px",
+                    top: adjustedTopPosition + "px",
                     zIndex: 9999,
                     // background: "orange",
-                    background: "white", // Set background color
+                    background: "yellow", // Set background color
                     boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)", // Add box shadow
                     // width:'20vw'
+                    width:'300px',
+                    height:'190px',
+                    overflow:'auto'
                   }}
                   ref={parentRef}
                   // onClick={handleCloseDialog}
@@ -822,6 +855,7 @@ const TootipPosition = () => {
                   <DialogTitle>New Box Drawn</DialogTitle>
                   <DialogContent>
                     <Typography>A new box has been drawn!</Typography>
+                    <Typography>{adjustedTopPosition}{leftPosition}</Typography>
                     {selectedBox !== null ? (
                       <Typography>{`Details for Box ${selectedBox.value}`}</Typography>
                     ) : null}
@@ -831,8 +865,10 @@ const TootipPosition = () => {
                     <Button onClick={handleRemove}>remove</Button>
                   </DialogActions>
                 </Box>
-              )
-          )}
+              );
+            }
+            return null;
+          })}
 
         {hoverId !== "" &&
           annotationsToDraw.map((value, i) => {
@@ -841,19 +877,24 @@ const TootipPosition = () => {
               const originalX = shapeRef.current[i].getAbsolutePosition().x;
 
               const topPosition =
-                parentRef.current.scrollTop !== null && parentRef.current.scrollTop > 0
-                  ?
-                   originalY - parentRef.current.scrollTop + 13
-                  : Math.min(
-                      originalY + parentRef.current.scrollTop ,
+                parentRef.current?.scrollTop !== undefined &&
+                parentRef.current?.scrollTop > 0
+                  ? originalY - parentRef.current.scrollTop + 13
+                  : parentRef.current?.scrollTop === undefined ? Math.min(
+                    originalY + 13,
+                    window.innerHeight - 50
+                  ) : Math.min(
+                      originalY + parentRef.current?.scrollTop + 13,
                       window.innerHeight - 50
                     );
 
-              const leftPosition = originalX + parentRef.current.scrollLeft;
+              const leftPosition = parentRef.current?.scrollLeft !== undefined ? originalX + parentRef.current?.scrollLeft : originalX;
 
               const adjustedTopPosition = topPosition;
 
               //   console.log('topposition', topPosition);
+              console.log('parentRef.current?.scrollTop',parentRef.current?.scrollTop);
+              console.log(' originalY + parentRef.current?.scrollTop + 70', originalY + parentRef.current?.scrollTop + 70);
 
               return (
                 hoverBox.id === value.id && (
@@ -870,7 +911,7 @@ const TootipPosition = () => {
                       //       : adjustedTopPosition + "px",
                       top: adjustedTopPosition + "px",
                       zIndex: 9999,
-                    //   background: "white",
+                      //   background: "white",
                       boxShadow: "0px 0px 20px 6px rgba(0, 0, 0, 0.1)",
                     }}
                   >

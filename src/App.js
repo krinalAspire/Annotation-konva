@@ -15,8 +15,8 @@ function App() {
   // </Stage>
   <>
   {/* <h5>Start to draw</h5> */}
-  {/* <DrawAnnotations/> */}
-  <TootipPosition />
+  <DrawAnnotations/>
+  {/* <TootipPosition /> */}
   </>
   );
 }
