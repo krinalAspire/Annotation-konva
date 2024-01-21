@@ -143,6 +143,15 @@ const DrawAnnotations = () => {
 
   useEffect(() => {
     // Replace this with your actual initial data
+    // const convertedAnnotations = initialAnnotations.map((annotation) => ({
+    //   ...annotation,
+    //   x: parseFloat(annotation.x) || 0,
+    //   y: parseFloat(annotation.y) || 0,
+    //   width: parseFloat(annotation.width) || 0,
+    //   height: parseFloat(annotation.height) || 0,
+    //   value:parseFloat(annotation.value),
+    // }));
+    // setAnnotations(convertedAnnotations);
     setAnnotations(initialAnnotations);
     sethoverId("");
   }, []);
@@ -439,14 +448,14 @@ const DrawAnnotations = () => {
     }
     setTootipId(value.id);
 
-    const stage = stageRef.current;
-    // console.log("stage", stage.current);
-    const pointerPos = stage.getPointerPosition() || { x: 0, y: 0 };
-    // console.log("pointerPos", pointerPos);
-    const tooltipX = pointerPos.x;
-    const tooltipY = pointerPos.y + 5;
+    // const stage = stageRef.current;
+    // // console.log("stage", stage.current);
+    // const pointerPos = stage.getPointerPosition() || { x: 0, y: 0 };
+    // // console.log("pointerPos", pointerPos);
+    // const tooltipX = pointerPos.x;
+    // const tooltipY = pointerPos.y + 5;
 
-    setTooltipPosition({ x: tooltipX, y: tooltipY });
+    // setTooltipPosition({ x: tooltipX, y: tooltipY });
 
     if (value.version === selectedItem && value.validated) {
       sethoverRectFillcolor("rgba(34,139,34, 0.3)");
@@ -574,6 +583,33 @@ const DrawAnnotations = () => {
                 variant="dense"
                 sx={{ display: "flex", justifyContent: "flex-end" }}
               >
+                <Box
+                  sx={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    marginRight: "15vw",
+                    // padding:'0 5vw'
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      // animation: "2s linear 0s infinite alternate sun-rise",
+                      animation: "6s linear 0s infinite moveAndDisappear",
+                      "@keyframes moveAndDisappear": {
+                        from: {
+                          // transform: "translatex(110vh)",
+                          transform: "translatex(0%)",
+                        },
+                        to: {
+                          // transform: "translatex(20%)",
+                          transform: "translatex(100%)",
+                        },
+                      },
+                    }}
+                  >
+                    This is Readonly mode. Click bottom button to go to edit.
+                  </Typography>
+                </Box>
                 {/* {Array.from(versionSet).map((value) => {
                   if (value !== selectedItem) {
                     return (
@@ -661,375 +697,388 @@ const DrawAnnotations = () => {
             ref={parentRef}
             sx={{ width: "auto", height: "92vh", overflow: "auto" }}
           >
-            <Stage
-              ref={stageRef}
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              onMouseMove={handleMouseMove}
-              onMouseEnter={handleMouseEnter}
-              // width={900}
-              // height={700}
-              // width={image.width}
-              // height={image.height}
-              // width={window.innerWidth}
-              // height={window.innerHeight}
-              width={originalImageSize.width}
-              height={originalImageSize.height}
-            >
-              <Layer>
-                <Image
-                  image={image}
-                  scaleX={originalImageSize.width / image.width}
-                  scaleY={originalImageSize.height / image.height}
-                />
-              </Layer>
-              <Layer>
-                {annotationsToDraw.map((value, i) => {
-                  // console.log("value", value);
-                  // console.log('i', i);
-                  return (
-                    // <Rect
-                    //   key={value.id}
-                    //   x={value.x}
-                    //   y={value.y}
-                    //   width={value.width}
-                    //   height={value.height}
-                    //   //   fill="transparent"
-                    //   stroke={color}
-                    //   draggable
-                    // />
-                    // <Rect
-                    //   key={value.id}
-                    //   x={value.x * (900 / value.imageWidth)}
-                    //   y={value.y * (700 / value.imageHeight)}
-                    //   width={value.width * (900 / value.imageWidth)}
-                    //   height={value.height * (700 / value.imageHeight)}
-                    //   stroke={color}
-                    //   draggable
-                    // />
-                    // <Rect
-                    //   key={value.id}
-                    //   x={value.x}
-                    //   y={value.y}
-                    //   width={value.width}
-                    //   height={value.height}
-                    //   onMouseEnter={onMouseEnter}
-                    //   onMouseLeave={onMouseLeave}
-                    //   // stroke={color}
-                    //   // stroke={value === newAnnotation[0] ? newAnnotationColor : color}
-                    //   fill="transparent"
-                    //   stroke={value.color || initialDataColor}
-                    //   onClick={() => handleBoxClick(value)}
-                    //   // draggable
-                    // />
-                    <>
-                      <Rect
-                        key={value.id}
-                        // ref={shapeRef}
-                        // ref={shapeRef.current[i]}
-                        ref={(node) => (shapeRef.current[i] = node)}
-                        {...value}
-                        // onTransformEnd={event => {
-                        //   const node = shapeRef.current;
-                        //   const scaleX = node.scaleX();
-                        //   const scaleY = node.scaleY();
-                        //   node.scaleX(1);
-                        //   node.scaleY(1);
-                        //   onChange({
-                        //     ...shapeProps,
-                        //     x: node.x(),
-                        //     y: node.y(),
-                        //     // set minimal value
-                        //     width: Math.max(5, node.width() * scaleX),
-                        //     height: Math.max(node.height() * scaleY)
-                        //   });
-                        // }}
-                        onTransformEnd={(event) => {
-                          // const node = shapeRef.current;
-                          const node = shapeRef.current[i];
-                          // console.log("node", node);
-                          if (node) {
-                            const scaleX = node.scaleX();
-                            const scaleY = node.scaleY();
-                            // const scaleX = node.scaleX ? node.scaleX() : 1;
-                            // const scaleY = node.scaleY ? node.scaleY() : 1;
-                            node.scaleX(1);
-                            node.scaleY(1);
-                            // console.log('node', node);
-
-                            const newAttrs = {
-                              ...value,
-                              x:
-                                node.x() /
-                                (originalImageSize.width / image.width),
-                              y:
-                                node.y() /
-                                (originalImageSize.height / image.height),
-                              // set minimal value
-                              // width: Math.max(5, node.width() * scaleX),
-                              width:
-                                (node.width() * scaleX) /
-                                (originalImageSize.width / image.width),
-                              // height: Math.max(node.height() * scaleY),
-                              height:
-                                (node.height() * scaleY) /
-                                (originalImageSize.height / image.height),
-                            };
-                            // console.log("newAttrs", newAttrs);
-
-                            // Call your onChange function directly
-                            const rects = annotations.slice();
-                            rects[i] = newAttrs;
-                            setAnnotations(rects);
-                            // setTransformBox(null);
-                            // if (value.id === transformBox.id) {
-                            //   setSelectedBox(value);
-                            //   setDialogOpen(true);
-                            // }
-
-                            // const transformerNode = transformRef.current[i];
-                            // const rectNode = shapeRef.current[i];
-                            // if (transformerNode && rectNode) {
-                            //   const rectPos = rectNode.position();
-                            //   const iconPos =
-                            //     transformerNode.getAbsolutePosition();
-                            //   setIconPosition({
-                            //     x: iconPos.x - rectPos.x,
-                            //     y: iconPos.y - rectPos.y,
+            {originalImageSize.width !== "" &&
+              originalImageSize.height !== "" && (
+                <Stage
+                  ref={stageRef}
+                  onMouseDown={handleMouseDown}
+                  onMouseUp={handleMouseUp}
+                  onMouseMove={handleMouseMove}
+                  onMouseEnter={handleMouseEnter}
+                  // width={900}
+                  // height={700}
+                  // width={image.width}
+                  // height={image.height}
+                  // width={window.innerWidth}
+                  // height={window.innerHeight}
+                  width={originalImageSize.width}
+                  height={originalImageSize.height}
+                >
+                  <Layer>
+                    <Image
+                      image={image}
+                      scaleX={originalImageSize.width / image.width}
+                      scaleY={originalImageSize.height / image.height}
+                    />
+                  </Layer>
+                  <Layer>
+                    {annotationsToDraw.map((value, i) => {
+                      // console.log("value", value);
+                      // console.log('i', i);
+                      return (
+                        // <Rect
+                        //   key={value.id}
+                        //   x={value.x}
+                        //   y={value.y}
+                        //   width={value.width}
+                        //   height={value.height}
+                        //   //   fill="transparent"
+                        //   stroke={color}
+                        //   draggable
+                        // />
+                        // <Rect
+                        //   key={value.id}
+                        //   x={value.x * (900 / value.imageWidth)}
+                        //   y={value.y * (700 / value.imageHeight)}
+                        //   width={value.width * (900 / value.imageWidth)}
+                        //   height={value.height * (700 / value.imageHeight)}
+                        //   stroke={color}
+                        //   draggable
+                        // />
+                        // <Rect
+                        //   key={value.id}
+                        //   x={value.x}
+                        //   y={value.y}
+                        //   width={value.width}
+                        //   height={value.height}
+                        //   onMouseEnter={onMouseEnter}
+                        //   onMouseLeave={onMouseLeave}
+                        //   // stroke={color}
+                        //   // stroke={value === newAnnotation[0] ? newAnnotationColor : color}
+                        //   fill="transparent"
+                        //   stroke={value.color || initialDataColor}
+                        //   onClick={() => handleBoxClick(value)}
+                        //   // draggable
+                        // />
+                        <Group key={value.id}>
+                          <Rect
+                            key={value.id}
+                            // ref={shapeRef}
+                            // ref={shapeRef.current[i]}
+                            ref={(node) => (shapeRef.current[i] = node)}
+                            {...value}
+                            // onTransformEnd={event => {
+                            //   const node = shapeRef.current;
+                            //   const scaleX = node.scaleX();
+                            //   const scaleY = node.scaleY();
+                            //   node.scaleX(1);
+                            //   node.scaleY(1);
+                            //   onChange({
+                            //     ...shapeProps,
+                            //     x: node.x(),
+                            //     y: node.y(),
+                            //     // set minimal value
+                            //     width: Math.max(5, node.width() * scaleX),
+                            //     height: Math.max(node.height() * scaleY)
                             //   });
-                            // }
-                          }
-                        }}
-                        x={
-                          value.label !== undefined
-                            ? value.x * (originalImageSize.width / image.width)
-                            : value.x
-                        }
-                        y={
-                          value.label !== undefined
-                            ? value.y *
-                              (originalImageSize.height / image.height)
-                            : value.y
-                        }
-                        width={
-                          value.label !== undefined
-                            ? value.width *
-                              (originalImageSize.width / image.width)
-                            : value.width
-                        }
-                        height={
-                          value.label !== undefined
-                            ? value.height *
-                              (originalImageSize.height / image.height)
-                            : value.height
-                        }
-                        fill={
-                          value.label
-                            ? hoverId === value.id
-                              ? hoverRectFillcolor
-                              : value.version === selectedItem &&
-                                value.validated
-                              ? "rgba(34,139,34, 0.1)"
-                              : value.version !== selectedItem &&
-                                value.validated
-                              ? "rgba(255,165,0,0.1)"
-                              : "rgba(255,165,0,0.1)"
-                            : null
-                        }
-                        stroke={
-                          value.version === selectedItem && value.validated
-                            ? validateColor
-                            : value.version !== selectedItem && value.validated
-                            // ? getBackgroundForVersion(value.version, 1)
-                            ? initialDataColor
-                            : value.color || initialDataColor
-                        }
-                        onClick={() => handleBoxClick(value)}
-                        strokeWidth={1} // Adjust the width of the border
-                        dash={value.label === undefined ? [5, 5] : null} // Set a dashed border pattern
-                        // cornerRadius={5} // Set the radius of the corners
-                        cornerRadius={
-                          value.label !== undefined &&
-                          value.width > 0 &&
-                          value.height > 0
-                            ? 5 // Set the radius of the corners for rectangles with positive width and height
-                            : 0 // No corner radius for rectangles with negative width or height
-                        }
-                        onMouseOver={() => handleMouseOver(value)}
-                        onMouseEnter={rectMouseEnter}
-                        onMouseLeave={rectMouseLeave}
-                        draggable
-                        onDragStart={handleDragStart}
-                        onDragMove={handleDragMove}
-                        onDragEnd={handleDragEnd}
-                      />
-                      {/* {selectedBox && <Transformer ref={transformRef} />} */}
-                      {transformBox &&
-                        transformBox.label &&
-                        transformBox.id === value.id && (
-                          <Transformer
-                            key={`transformer-${value.id}`} // Ensure a unique key for each Transformer
-                            // ref={transformRef.current[i]}
-                            ref={(node) => (transformRef.current[i] = node)}
-                            // ref={transformRef}
-                            // flipEnabled={false}
-                            rotateEnabled={false}
-                            boundBoxFunc={(oldBox, newBox) => {
-                              // limit resize
-                              if (
-                                Math.abs(newBox.width) < 5 ||
-                                Math.abs(newBox.height) < 5
-                              ) {
-                                return oldBox;
+                            // }}
+                            onTransformEnd={(event) => {
+                              // const node = shapeRef.current;
+                              const node = shapeRef.current[i];
+                              // console.log("node", node);
+                              if (node) {
+                                const scaleX = node.scaleX();
+                                const scaleY = node.scaleY();
+                                // const scaleX = node.scaleX ? node.scaleX() : 1;
+                                // const scaleY = node.scaleY ? node.scaleY() : 1;
+                                node.scaleX(1);
+                                node.scaleY(1);
+                                // console.log('node', node);
+
+                                const newAttrs = {
+                                  ...value,
+                                  x:
+                                    node.x() /
+                                    (originalImageSize.width / image.width),
+                                  y:
+                                    node.y() /
+                                    (originalImageSize.height / image.height),
+                                  // set minimal value
+                                  // width: Math.max(5, node.width() * scaleX),
+                                  width:
+                                    (node.width() * scaleX) /
+                                    (originalImageSize.width / image.width),
+                                  // height: Math.max(node.height() * scaleY),
+                                  height:
+                                    (node.height() * scaleY) /
+                                    (originalImageSize.height / image.height),
+                                };
+                                // console.log("newAttrs", newAttrs);
+
+                                // Call your onChange function directly
+                                const rects = annotations.slice();
+                                rects[i] = newAttrs;
+                                setAnnotations(rects);
+                                // setTransformBox(null);
+                                // if (value.id === transformBox.id) {
+                                //   setSelectedBox(value);
+                                //   setDialogOpen(true);
+                                // }
+
+                                // const transformerNode = transformRef.current[i];
+                                // const rectNode = shapeRef.current[i];
+                                // if (transformerNode && rectNode) {
+                                //   const rectPos = rectNode.position();
+                                //   const iconPos =
+                                //     transformerNode.getAbsolutePosition();
+                                //   setIconPosition({
+                                //     x: iconPos.x - rectPos.x,
+                                //     y: iconPos.y - rectPos.y,
+                                //   });
+                                // }
                               }
-                              return newBox;
                             }}
-                            // onClick={() => setSelectedBox(value)}
-                            // onMouseDown={onmousedown}
-                            // anchorFill='green'
-                            anchorFill={
+                            x={
+                              value.label !== undefined
+                                ? value.x *
+                                  (originalImageSize.width / image.width)
+                                : value.x
+                            }
+                            y={
+                              value.label !== undefined
+                                ? value.y *
+                                  (originalImageSize.height / image.height)
+                                : value.y
+                            }
+                            width={
+                              value.label !== undefined
+                                ? value.width *
+                                  (originalImageSize.width / image.width)
+                                : value.width
+                            }
+                            height={
+                              value.label !== undefined
+                                ? value.height *
+                                  (originalImageSize.height / image.height)
+                                : value.height
+                            }
+                            fill={
+                              value.label
+                                ? hoverId === value.id
+                                  ? hoverRectFillcolor
+                                  : value.version === selectedItem &&
+                                    value.validated
+                                  ? "rgba(34,139,34, 0.1)"
+                                  : value.version !== selectedItem &&
+                                    value.validated
+                                  ? "rgba(255,165,0,0.1)"
+                                  : "rgba(255,165,0,0.1)"
+                                : null
+                            }
+                            stroke={
                               value.version === selectedItem && value.validated
                                 ? validateColor
                                 : value.version !== selectedItem &&
                                   value.validated
-                                // ? getBackgroundForVersion(value.version, 1)
-                                ? initialDataColor
+                                ? // ? getBackgroundForVersion(value.version, 1)
+                                  initialDataColor
                                 : value.color || initialDataColor
                             }
-                            anchorSize={8}
-                            // anchorCornerRadius={2}
+                            onClick={() => handleBoxClick(value)}
+                            strokeWidth={1} // Adjust the width of the border
+                            dash={value.label === undefined ? [5, 5] : null} // Set a dashed border pattern
+                            // cornerRadius={5} // Set the radius of the corners
+                            cornerRadius={
+                              value.label !== undefined &&
+                              value.width > 0 &&
+                              value.height > 0
+                                ? 5 // Set the radius of the corners for rectangles with positive width and height
+                                : 0 // No corner radius for rectangles with negative width or height
+                            }
+                            onMouseOver={() => handleMouseOver(value)}
+                            onMouseEnter={rectMouseEnter}
+                            onMouseLeave={rectMouseLeave}
+                            draggable
+                            onDragStart={handleDragStart}
+                            onDragMove={handleDragMove}
+                            onDragEnd={handleDragEnd}
                           />
-                        )}
-
-                      {transformBox &&
-                        transformBox.label &&
-                        transformBox.x === value.x &&
-                        transformBox.id === value.id && (
-                          <Image
-                            image={trashimage}
-                            x={
-                              shapeRef.current[i] &&
-                              shapeRef.current[i].getAbsolutePosition().x +
-                                value.width *
-                                  (originalImageSize.width / image.width) +
-                                5 // Adjust the offset as needed
-                            }
-                            y={
-                              shapeRef.current[i] &&
-                              shapeRef.current[i].getAbsolutePosition().y +
-                                value.height *
-                                  (originalImageSize.height / image.height) -
-                                20 // Adjust the offset as needed
-                            }
-                            width={20} // Adjust width as needed
-                            height={20} // Adjust height as needed
-                            onClick={handletransformcancle}
-                            onMouseEnter={transformMouseEnter}
-                            onMouseLeave={transformMouseLeave}
-                          />
-                        )}
-
-                      {transformBox &&
-                        transformBox.x !== value.x &&
-                        transformBox.id === value.id && (
-                          <Image
-                            image={checkimage}
-                            x={
-                              shapeRef.current[i] &&
-                              shapeRef.current[i].getAbsolutePosition().x +
-                                value.width *
-                                  (originalImageSize.width / image.width) +
-                                5 // Adjust the offset as needed
-                            }
-                            y={
-                              shapeRef.current[i] &&
-                              shapeRef.current[i].getAbsolutePosition().y +
-                                value.height *
-                                  (originalImageSize.height / image.height) -
-                                20 // Adjust the offset as needed
-                            }
-                            width={20} // Adjust width as needed
-                            height={20} // Adjust height as needed
-                            onClick={handletransformcancle}
-                            onMouseEnter={transformMouseEnter}
-                            onMouseLeave={transformMouseLeave}
-                          />
-                        )}
-
-                      {hoverId === value.id && (
-                        <>
-                          <Rect
-                            x={
-                              value.x *
-                                (originalImageSize.width / image.width) +
-                              10
-                            }
-                            y={
-                              shapeRef.current[i] &&
-                              shapeRef.current[i].getAbsolutePosition().y +
-                                value.height *
-                                  (originalImageSize.height / image.height) -
-                                5 // Adjust the offset as needed
-                            }
-                            // width={
-                            //   // value.width *
-                            //   // (originalImageSize.width / image.width)
-                            //   100
-                            // } // Adjust width as needed
-                            width={
-                              // textRef.current ?
-                              getTextWidth(value.label, textRef.current.font) +
-                              30
-                              // : 100
-                            } // Adjust width as needed
-                            height={
-                              // value.height *
-                              // (originalImageSize.width / image.width)
-                              22
-                            } // Adjust height as needed
-                            fill={
-                              value.version === selectedItem && value.validated
-                                ? "rgba(38, 194, 129, 1)"
-                                : value.version !== selectedItem &&
+                          {/* {selectedBox && <Transformer ref={transformRef} />} */}
+                          {transformBox &&
+                            transformBox.label &&
+                            transformBox.id === value.id && (
+                              <Transformer
+                                key={`transformer-${value.id}`} // Ensure a unique key for each Transformer
+                                // ref={transformRef.current[i]}
+                                ref={(node) => (transformRef.current[i] = node)}
+                                // ref={transformRef}
+                                // flipEnabled={false}
+                                rotateEnabled={false}
+                                boundBoxFunc={(oldBox, newBox) => {
+                                  // limit resize
+                                  if (
+                                    Math.abs(newBox.width) < 5 ||
+                                    Math.abs(newBox.height) < 5
+                                  ) {
+                                    return oldBox;
+                                  }
+                                  return newBox;
+                                }}
+                                // onClick={() => setSelectedBox(value)}
+                                // onMouseDown={onmousedown}
+                                // anchorFill='green'
+                                anchorFill={
+                                  value.version === selectedItem &&
                                   value.validated
-                                // ? getBackgroundForVersion(value.version, 1)
-                                ? "rgba(255,165,0,1)"
-                                : "rgba(255,165,0,1)"
-                            } // Set the background color of the tooltip-like rect
-                            cornerRadius={5} // Set the radius of the corners
-                          />
-                          <Text
-                            x={
-                              value.x *
-                                (originalImageSize.width / image.width) +
-                              20
-                            }
-                            y={
-                              shapeRef.current[i] &&
-                              shapeRef.current[i].getAbsolutePosition().y +
-                                value.height *
-                                  (originalImageSize.height / image.height) -
-                                0.5 // Adjust the offset as needed
-                            }
-                            // width={
-                            //   value.width *
-                            //   (originalImageSize.width / image.width)
-                            // } // Adjust width as needed
-                            // height={
-                            //   value.height *
-                            //   (originalImageSize.width / image.width)
-                            // } // Adjust height as needed
-                            text={`${value?.label}`}
-                            fill="black" // Set the text color
-                            ref={textRef}
-                          />
-                        </>
-                      )}
-                    </>
-                  );
-                })}
-              </Layer>
-            </Stage>
+                                    ? validateColor
+                                    : value.version !== selectedItem &&
+                                      value.validated
+                                    ? // ? getBackgroundForVersion(value.version, 1)
+                                      initialDataColor
+                                    : value.color || initialDataColor
+                                }
+                                anchorSize={8}
+                                // anchorCornerRadius={2}
+                              />
+                            )}
+
+                          {transformBox &&
+                            transformBox.label &&
+                            transformBox.x === value.x &&
+                            transformBox.id === value.id && (
+                              <Image
+                                image={trashimage}
+                                x={
+                                  shapeRef.current[i] &&
+                                  shapeRef.current[i].getAbsolutePosition().x +
+                                    value.width *
+                                      (originalImageSize.width / image.width) +
+                                    5 // Adjust the offset as needed
+                                }
+                                y={
+                                  shapeRef.current[i] &&
+                                  shapeRef.current[i].getAbsolutePosition().y +
+                                    value.height *
+                                      (originalImageSize.height /
+                                        image.height) -
+                                    20 // Adjust the offset as needed
+                                }
+                                width={20} // Adjust width as needed
+                                height={20} // Adjust height as needed
+                                onClick={handletransformcancle}
+                                onMouseEnter={transformMouseEnter}
+                                onMouseLeave={transformMouseLeave}
+                              />
+                            )}
+
+                          {transformBox &&
+                            transformBox.x !== value.x &&
+                            transformBox.id === value.id && (
+                              <Image
+                                image={checkimage}
+                                x={
+                                  shapeRef.current[i] &&
+                                  shapeRef.current[i].getAbsolutePosition().x +
+                                    value.width *
+                                      (originalImageSize.width / image.width) +
+                                    5 // Adjust the offset as needed
+                                }
+                                y={
+                                  shapeRef.current[i] &&
+                                  shapeRef.current[i].getAbsolutePosition().y +
+                                    value.height *
+                                      (originalImageSize.height /
+                                        image.height) -
+                                    20 // Adjust the offset as needed
+                                }
+                                width={20} // Adjust width as needed
+                                height={20} // Adjust height as needed
+                                onClick={handletransformcancle}
+                                onMouseEnter={transformMouseEnter}
+                                onMouseLeave={transformMouseLeave}
+                              />
+                            )}
+
+                          {hoverId === value.id && (
+                            <>
+                              <Rect
+                                x={
+                                  value.x *
+                                    (originalImageSize.width / image.width) +
+                                  10
+                                }
+                                y={
+                                  shapeRef.current[i] &&
+                                  shapeRef.current[i].getAbsolutePosition().y +
+                                    value.height *
+                                      (originalImageSize.height /
+                                        image.height) -
+                                    5 // Adjust the offset as needed
+                                }
+                                // width={
+                                //   // value.width *
+                                //   // (originalImageSize.width / image.width)
+                                //   100
+                                // } // Adjust width as needed
+                                width={
+                                  // textRef.current ?
+                                  getTextWidth(
+                                    value.label,
+                                    textRef.current.font
+                                  ) + 30
+                                  // : 100
+                                } // Adjust width as needed
+                                height={
+                                  // value.height *
+                                  // (originalImageSize.width / image.width)
+                                  22
+                                } // Adjust height as needed
+                                fill={
+                                  value.version === selectedItem &&
+                                  value.validated
+                                    ? "rgba(38, 194, 129, 1)"
+                                    : value.version !== selectedItem &&
+                                      value.validated
+                                    ? // ? getBackgroundForVersion(value.version, 1)
+                                      "rgba(255,165,0,1)"
+                                    : "rgba(255,165,0,1)"
+                                } // Set the background color of the tooltip-like rect
+                                cornerRadius={5} // Set the radius of the corners
+                              />
+                              <Text
+                                x={
+                                  value.x *
+                                    (originalImageSize.width / image.width) +
+                                  20
+                                }
+                                y={
+                                  shapeRef.current[i] &&
+                                  shapeRef.current[i].getAbsolutePosition().y +
+                                    value.height *
+                                      (originalImageSize.height /
+                                        image.height) -
+                                    0.5 // Adjust the offset as needed
+                                }
+                                // width={
+                                //   value.width *
+                                //   (originalImageSize.width / image.width)
+                                // } // Adjust width as needed
+                                // height={
+                                //   value.height *
+                                //   (originalImageSize.width / image.width)
+                                // } // Adjust height as needed
+                                text={`${value?.label}`}
+                                fill="black" // Set the text color
+                                ref={textRef}
+                              />
+                            </>
+                          )}
+                        </Group>
+                      );
+                    })}
+                  </Layer>
+                </Stage>
+              )}
             {/* {isDialogOpen &&
               selectedBox &&
               annotationsToDraw.map(
