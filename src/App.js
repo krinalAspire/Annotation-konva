@@ -2,7 +2,9 @@ import './App.css';
 // import { Layer, Stage, Text } from 'react-konva';
 // import ColoreRect from './ColorRect';
 import DrawAnnotations from './DrawAnnotations';
+import PDFAnnotation from './PDFAnnotation';
 import PDFViewer from './PDFViewer';
+import ReactPdf from './ReactPdf';
 import TootipPosition from './TootipPosition';
 
 function App() {
@@ -16,7 +18,9 @@ function App() {
   <>
   {/* <h5>Start to draw</h5> */}
   {/* <DrawAnnotations/> */}
-  <PDFViewer />
+  {/* <PDFViewer /> */}
+  <PDFAnnotation />
+  {/* <ReactPdf /> */}
   {/* <TootipPosition /> */}
   </>
   );

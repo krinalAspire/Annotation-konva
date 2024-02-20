@@ -37,6 +37,7 @@ function PDFViewer() {
         const viewport = page.getViewport({ scale: 1.5 });
         const canvas = document.createElement("canvas");
         const canvasContext = canvas.getContext("2d");
+        console.log('canvasContext', viewport?.width);
         canvas.width = viewport.width;
         canvas.height = viewport.height;
         const renderContext = {
