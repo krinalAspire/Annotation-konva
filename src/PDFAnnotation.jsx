@@ -65,6 +65,10 @@ const PDFAnnotation = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const pdfUrl = "http://192.168.2.213:9014/images/1707385896805-invoice_1.pdf";
   // const pdfUrl ="http://192.168.2.213:9014/images/1708334472986-test-pdf-konva.pdf";
+  // const pdfUrl = 'http://192.168.2.213:9014/images/1708508227748-invoice_2.pdf';
+  // const pdfUrl = 'http://192.168.2.213:9014/images/1708508517303-invoice_0.pdf';
+  // const pdfUrl = 'http://192.168.2.213:9014/images/1708508648858-invoice_590.pdf';
+  // const pdfUrl = 'http://192.168.2.213:9014/images/1708508886990-png2pdf.pdf';
 
   useEffect(() => {
     const loadPDF = async () => {
@@ -72,8 +76,9 @@ const PDFAnnotation = () => {
       const pages = [];
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum);
-        console.log('page',page);
+        // console.log("page", page);
         const viewport = page.getViewport({ scale: 1.5 });
+        console.log('page',page?.view);
         const canvas = document.createElement("canvas");
         const canvasContext = canvas.getContext("2d");
         // console.log('viewport',viewport);
@@ -88,6 +93,12 @@ const PDFAnnotation = () => {
         const imageData = canvas.toDataURL();
         // imageDataArray.push(imageData);
         setImageUrl(imageData);
+
+        const actualImageWidth = page.view[2] * 1.5; // Width of the image
+        const actualImageHeight = page.view[3] * 1.5; // Height of the image
+
+        console.log('actualImageWidth', actualImageWidth);
+        console.log('actualImageHeight', actualImageHeight);
 
         // const scale = 1.5;
 
@@ -198,7 +209,7 @@ const PDFAnnotation = () => {
   }, []);
 
   useEffect(() => {
-    if( imageUrl !== null){
+    if (imageUrl !== null) {
       image.src = imageUrl;
     }
   }, [imageUrl]);
@@ -323,10 +334,10 @@ const PDFAnnotation = () => {
           // console.log("this called");
           return {
             id: box.id,
-            x: box.x / (originalImageSize.width / image.width),
-            y: box.y / (originalImageSize.height / image.height),
-            width: box.width / (originalImageSize.width / image.width),
-            height: box.height / (originalImageSize.height / image.height),
+            x: box.x / (originalImageSize.width / (image.width * 2.8)),
+            y: box.y / (originalImageSize.height / (image.height * 2.8)),
+            width: box.width / (originalImageSize.width / (image.width * 2.8)),
+            height: box.height / (originalImageSize.height / (image.height * 2.8)),
             validated: true,
             key: "new",
             label: "newbox",
@@ -423,8 +434,8 @@ const PDFAnnotation = () => {
         box.id === hoverId
           ? {
               ...box,
-              x: x / (originalImageSize.width / image.width),
-              y: y / (originalImageSize.height / image.height),
+              x: x / (originalImageSize.width / (image.width * 2.8)),
+              y: y / (originalImageSize.height / (image.height * 2.8)),
             }
           : box
       );
@@ -516,7 +527,8 @@ const PDFAnnotation = () => {
             sx={{ width: "auto", height: "92vh", overflow: "auto" }}
           >
             {originalImageSize.width !== "" &&
-              originalImageSize.height !== "" && image !== null && (
+              originalImageSize.height !== "" &&
+              image !== null && (
                 <Stage
                   ref={stageRef}
                   onMouseDown={handleMouseDown}
@@ -543,10 +555,15 @@ const PDFAnnotation = () => {
                           image={pageDataUrl}
                           x={0} // Adjust x position based on page index
                           y={index * pageDataUrl.height} // Set y position to 0
-                          // scaleX={originalImageSize.width / image.width}
-                          // scaleY={originalImageSize.height / image.height}
+                          scaleX={originalImageSize.width / (image.width + 8)}
+                          scaleY={originalImageSize.height / (image.height + 8)}
+                          // scaleX={originalImageSize.width}
+                          // scaleY={originalImageSize.height}
                           // width={originalImageSize.width}
                           // height={originalImageSize.height}
+                          // y={index * image.height} // Adjust y position based on page index
+                          // width={image.width + 70}
+                          // height={image.height}
                         />
                       );
                     })}
@@ -561,6 +578,21 @@ const PDFAnnotation = () => {
                             // y={value.y}
                             // width={value.width}
                             // height={value.height}
+                            // x={
+                            //   (value.x * image.width) / originalImageSize.width
+                            // }
+                            // y={
+                            //   (value.y * image.height) /
+                            //   originalImageSize.height
+                            // }
+                            // width={
+                            //   (value.width * image.width) /
+                            //   originalImageSize.width
+                            // }
+                            // height={
+                            //   (value.height * image.height) /
+                            //   originalImageSize.height
+                            // }
                             ref={(node) => (shapeRef.current[i] = node)}
                             {...value}
                             onTransformEnd={(event) => {
@@ -575,17 +607,17 @@ const PDFAnnotation = () => {
                                   ...value,
                                   x:
                                     node.x() /
-                                    (originalImageSize.width / image.width),
+                                    (originalImageSize.width / (image.width * 2.8)),
                                   y:
                                     node.y() /
-                                    (originalImageSize.height / image.height),
+                                    (originalImageSize.height / (image.height * 2.8)),
                                   // set minimal value
                                   width:
                                     (node.width() * scaleX) /
-                                    (originalImageSize.width / image.width),
+                                    (originalImageSize.width / (image.width * 2.8)),
                                   height:
                                     (node.height() * scaleY) /
-                                    (originalImageSize.height / image.height),
+                                    (originalImageSize.height / (image.height * 2.8)),
                                 };
 
                                 // Call your onChange function directly
@@ -597,25 +629,29 @@ const PDFAnnotation = () => {
                             x={
                               value.label !== undefined
                                 ? value.x *
-                                  (originalImageSize.width / (image.width * 3))
+                                  (originalImageSize.width /
+                                    (image.width * 2.8))
                                 : value.x
                             }
                             y={
                               value.label !== undefined
                                 ? value.y *
-                                  (originalImageSize.height / (image.height * 2.6))
+                                  (originalImageSize.height /
+                                    (image.height * 2.8))
                                 : value.y
                             }
                             width={
                               value.label !== undefined
                                 ? value.width *
-                                  (originalImageSize.width / (image.width * 3))
+                                  (originalImageSize.width /
+                                    (image.width * 2.8))
                                 : value.width
                             }
                             height={
                               value.label !== undefined
                                 ? value.height *
-                                  (originalImageSize.height / (image.height * 3))
+                                  (originalImageSize.height /
+                                    (image.height * 2.8))
                                 : value.height
                             }
                             fill={
@@ -700,7 +736,7 @@ const PDFAnnotation = () => {
                                   shapeRef.current[i] &&
                                   shapeRef.current[i].getAbsolutePosition().x +
                                     value.width *
-                                      (originalImageSize.width / image.width) +
+                                      (originalImageSize.width / (image.width * 2.8)) +
                                     5 // Adjust the offset as needed
                                 }
                                 y={
@@ -708,7 +744,7 @@ const PDFAnnotation = () => {
                                   shapeRef.current[i].getAbsolutePosition().y +
                                     value.height *
                                       (originalImageSize.height /
-                                        image.height) -
+                                        (image.height * 2.8)) -
                                     20 // Adjust the offset as needed
                                 }
                                 width={20} // Adjust width as needed
@@ -728,7 +764,7 @@ const PDFAnnotation = () => {
                                   shapeRef.current[i] &&
                                   shapeRef.current[i].getAbsolutePosition().x +
                                     value.width *
-                                      (originalImageSize.width / image.width) +
+                                      (originalImageSize.width / (image.width * 2.8)) +
                                     5 // Adjust the offset as needed
                                 }
                                 y={
@@ -736,7 +772,7 @@ const PDFAnnotation = () => {
                                   shapeRef.current[i].getAbsolutePosition().y +
                                     value.height *
                                       (originalImageSize.height /
-                                        image.height) -
+                                        (image.height * 2.8)) -
                                     20 // Adjust the offset as needed
                                 }
                                 width={20} // Adjust width as needed
@@ -752,7 +788,7 @@ const PDFAnnotation = () => {
                               <Rect
                                 x={
                                   value.x *
-                                    (originalImageSize.width / image.width) +
+                                    (originalImageSize.width / (image.width * 2.8)) +
                                   10
                                 }
                                 y={
@@ -760,7 +796,7 @@ const PDFAnnotation = () => {
                                   shapeRef.current[i].getAbsolutePosition().y +
                                     value.height *
                                       (originalImageSize.height /
-                                        image.height) -
+                                        (image.height * 2.8)) -
                                     5 // Adjust the offset as needed
                                 }
                                 width={
@@ -770,9 +806,7 @@ const PDFAnnotation = () => {
                                     textRef.current.font
                                   ) + 30
                                 } // Adjust width as needed
-                                height={
-                                  22
-                                } // Adjust height as needed
+                                height={22} // Adjust height as needed
                                 fill={
                                   value.version === selectedItem &&
                                   value.validated
@@ -788,7 +822,7 @@ const PDFAnnotation = () => {
                               <Text
                                 x={
                                   value.x *
-                                    (originalImageSize.width / image.width) +
+                                    (originalImageSize.width / (image.width * 2.8)) +
                                   20
                                 }
                                 y={
@@ -796,7 +830,7 @@ const PDFAnnotation = () => {
                                   shapeRef.current[i].getAbsolutePosition().y +
                                     value.height *
                                       (originalImageSize.height /
-                                        image.height) -
+                                        (image.height * 2.8)) -
                                     0.5 // Adjust the offset as needed
                                 }
                                 text={`${value?.label}`}

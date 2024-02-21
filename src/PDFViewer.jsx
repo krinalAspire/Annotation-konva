@@ -82,6 +82,43 @@ function PDFViewer() {
     countPages(pdfUrl);
   }, []);
 
+  useEffect(() => {
+    async function getImageDimensionsFromPDF(pdfUrl) {
+      const loadingTask = pdfjs.getDocument(pdfUrl);
+      const pdf = await loadingTask.promise;
+    
+      const numPages = pdf.numPages;
+      const imageDimensions = [];
+    
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const annotations = await page.getAnnotations();
+    
+        const imageAnnotations = annotations.filter(annotation => annotation.subtype === 'Image');
+        
+        const pageImages = imageAnnotations.map(annotation => {
+          const rect = annotation.rect;
+          const width = rect[2] - rect[0];
+          const height = rect[3] - rect[1];
+          return { width, height };
+        });
+    
+        imageDimensions.push(pageImages);
+      }
+    
+      return imageDimensions;
+    }    
+    
+    // Replace 'your_pdf_url_here.pdf' with your actual PDF URL
+    getImageDimensionsFromPDF(pdfUrl)
+      .then(imageDimensions => {
+        console.log('Image Dimensions:', imageDimensions);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }, []);
+
   //   useEffect(() => {
   //   const loadPDF = async () => {
   //   const pdf = await pdfjs.getDocument('http://192.168.2.213:9014/images/1707385896805-invoice_1.pdf').promise;
